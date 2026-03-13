@@ -313,6 +313,7 @@ export default function Dashboard(){
                 <p style={{color:"#4a5568", fontSize:"14px", margin:"0 0 10px 0"}}>New safety regulations effective 2026 for all vessels operating in Indian waters.</p>
                 <span style={{color:"#718096", fontSize:"12px"}}>2026-03-13</span>
               </div>
+              {/* Port of Mumbai News card - commented out
               <div style={{
                 background:"white",
                 padding:"20px",
@@ -324,7 +325,8 @@ export default function Dashboard(){
                 <p style={{color:"#4a5568", fontSize:"14px", margin:"0 0 10px 0"}}>Record cargo handling in February 2026 shows 15% increase in throughput.</p>
                 <span style={{color:"#718096", fontSize:"12px"}}>2026-03-12</span>
               </div>
-              {/* AIS System Upgrade card removed - replaced with Vessel Statistics */}
+              */}
+              {/* Vessel Statistics card - commented out
               <div style={{
                 background:"white",
                 padding:"20px",
@@ -349,6 +351,7 @@ export default function Dashboard(){
                 </div>
                 <span style={{color:"#718096", fontSize:"12px"}}>Live Tracking</span>
               </div>
+              */}
               <div style={{
                 background:"white",
                 padding:"20px",
