@@ -231,14 +231,15 @@ export default function Dashboard(){
             </h2>
             
             {/* All Cards in Equal Width Grid */}
-            <div style={{display:"grid", gridTemplateColumns:"repeat(auto-fit, minmax(280px, 1fr))", gap:"20px"}}>
+            <div style={{display:"grid", gridTemplateColumns:"repeat(auto-fit, minmax(280px, 1fr))", gap:"20px", height:"100%"}}>
               {/* Shipping News Card with Continuous Vertical Scrolling */}
               <div style={{
                 background:"white",
                 borderRadius:"12px",
                 boxShadow:"0 4px 6px rgba(0,0,0,0.1)",
                 borderTop:"4px solid #805ad5",
-                overflow:"hidden"
+                overflow:"hidden",
+                height:"80%"
               }}>
                 <div style={{
                   padding:"15px 20px",
@@ -307,7 +308,8 @@ export default function Dashboard(){
                 padding:"20px",
                 borderRadius:"12px",
                 boxShadow:"0 4px 6px rgba(0,0,0,0.1)",
-                borderTop:"4px solid #1a365d"
+                borderTop:"4px solid #1a365d",
+                height:"80%"
               }}>
                 <h3 style={{margin:"0 0 10px 0", color:"#2d3748", fontSize:"16px"}}>Maritime Safety Alert</h3>
                 <p style={{color:"#4a5568", fontSize:"14px", margin:"0 0 10px 0"}}>New safety regulations effective 2026 for all vessels operating in Indian waters.</p>
@@ -357,7 +359,8 @@ export default function Dashboard(){
                 padding:"20px",
                 borderRadius:"12px",
                 boxShadow:"0 4px 6px rgba(0,0,0,0.1)",
-                borderTop:"4px solid #e53e3e"
+                borderTop:"4px solid #e53e3e",
+                height:"80%"
               }}>
                 <h3 style={{margin:"0 0 10px 0", color:"#2d3748", fontSize:"16px"}}>🌧️ Weather & Air Quality</h3>
                 {weatherLoading ? (
