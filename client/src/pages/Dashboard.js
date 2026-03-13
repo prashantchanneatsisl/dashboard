@@ -17,18 +17,42 @@ const CONFIG = {
 // To use a real API, sign up at https://newsdata.io or https://gnews.io and add your API key
 const SHIPPING_NEWS_API = process.env.REACT_APP_SHIPPING_NEWS_API || "";
 
+// Weather code to GIF mapping for Open-Meteo weather codes
+const getWeatherGif = (weatherCode) => {
+  // WMO Weather interpretation codes
+  if (weatherCode === 0) return "https://media.giphy.com/media/l0HlNQ03J5JxX6lva/giphy.gif"; // Clear sky
+  if (weatherCode >= 1 && weatherCode <= 3) return "https://media.giphy.com/media/3o7bu3XilJ5BOiSGic/giphy.gif"; // Partly cloudy
+  if (weatherCode >= 45 && weatherCode <= 48) return "https://media.giphy.com/media/3o7TKSf6gOu6RFUrkC/giphy.gif"; // Fog
+  if (weatherCode >= 51 && weatherCode <= 67) return "https://media.giphy.com/media/l0Iy69RBwtdmvwkIo/giphy.gif"; // Drizzle/Rain
+  if (weatherCode >= 71 && weatherCode <= 77) return "https://media.giphy.com/media/l0Iyl55kTeh71nTXy/giphy.gif"; // Snow
+  if (weatherCode >= 80 && weatherCode <= 82) return "https://media.giphy.com/media/xT5LMHxhOfscxPfIfm/giphy.gif"; // Rain showers
+  if (weatherCode >= 85 && weatherCode <= 86) return "https://media.giphy.com/media/l0Iyl55kTeh71nTXy/giphy.gif"; // Snow showers
+  if (weatherCode >= 95) return "https://media.giphy.com/media/l0HlBO2eyKzSZk0nE/giphy.gif"; // Thunderstorm
+  return "https://media.giphy.com/media/l0HlNQ03J5JxX6lva/giphy.gif"; // Default clear
+};
+
+// Get AQI status and color
+const getAQIStatus = (aqi) => {
+  if (aqi <= 50) return { status: "Good", color: "#22c55e" };
+  if (aqi <= 100) return { status: "Moderate", color: "#eab308" };
+  if (aqi <= 150) return { status: "Unhealthy for Sensitive", color: "#f97316" };
+  if (aqi <= 200) return { status: "Unhealthy", color: "#ef4444" };
+  if (aqi <= 300) return { status: "Very Unhealthy", color: "#a855f7" };
+  return { status: "Hazardous", color: "#7f1d1d" };
+};
+
 // Sample shipping news data - can be replaced with API fetch
 const sampleShippingNews = [
-  { id: 1, title: "Global Container Traffic Reaches Record High in 2026", source: "Maritime Journal", time: "2 hours ago" },
-  { id: 2, title: "New Green Shipping Corridors Announced for Asia-Europe Route", source: "Shipping Watch", time: "4 hours ago" },
-  { id: 3, title: "Port Automation Trends: AI Transforming Terminal Operations", source: "TradeWinds", time: "6 hours ago" },
-  { id: 4, title: "IMO 2026 Emissions Standards: Industry Prepares for Compliance", source: "Lloyd's List", time: "8 hours ago" },
-  { id: 5, title: "Container Shipping Rates Stabilize After Year of Volatility", source: "FreightWaves", time: "10 hours ago" },
-  { id: 6, title: "Major Cruise Line Expands Operations in Indian Ocean Region", source: "Cruise Industry News", time: "12 hours ago" },
-  { id: 7, title: "Offshore Wind Farm Projects Drive New Vessel Demand", source: "Renewable Energy Marine", time: "14 hours ago" },
-  { id: 8, title: "Digital Twin Technology Revolutionizing Ship Navigation", source: "Marine Technology News", time: "16 hours ago" },
-  { id: 9, title: "Bulk Carrier Fleet Growth Expected to Slow in 2026", source: "Baltic Exchange", time: "18 hours ago" },
-  { id: 10, title: "Smart Port Infrastructure Investments Hit New Record", source: "Port Strategy", time: "20 hours ago" }
+  { id: 1, title: "Global Container Traffic Reaches Record High in 2026", source: "Maritime Journal", time: "2 hours ago", image: "https://images.unsplash.com/photo-1494412574643-ff11b0a5c1c3?w=100&h=60&fit=crop" },
+  { id: 2, title: "New Green Shipping Corridors Announced for Asia-Europe Route", source: "Shipping Watch", time: "4 hours ago", image: "https://images.unsplash.com/photo-1519904981063-b0cf448d479e?w=100&h=60&fit=crop" },
+  { id: 3, title: "Port Automation Trends: AI Transforming Terminal Operations", source: "TradeWinds", time: "6 hours ago", image: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=100&h=60&fit=crop" },
+  { id: 4, title: "IMO 2026 Emissions Standards: Industry Prepares for Compliance", source: "Lloyd's List", time: "8 hours ago", image: "https://images.unsplash.com/photo-1569254821904-34d91231e0c7?w=100&h=60&fit=crop" },
+  { id: 5, title: "Container Shipping Rates Stabilize After Year of Volatility", source: "FreightWaves", time: "10 hours ago", image: "https://images.unsplash.com/photo-1577140917170-285929fb55b7?w=100&h=60&fit=crop" },
+  { id: 6, title: "Major Cruise Line Expands Operations in Indian Ocean Region", source: "Cruise Industry News", time: "12 hours ago", image: "https://images.unsplash.com/photo-1548574505-5e239809ee19?w=100&h=60&fit=crop" },
+  { id: 7, title: "Offshore Wind Farm Projects Drive New Vessel Demand", source: "Renewable Energy Marine", time: "14 hours ago", image: "https://images.unsplash.com/photo-1532601224476-15c79f2f7a51?w=100&h=60&fit=crop" },
+  { id: 8, title: "Digital Twin Technology Revolutionizing Ship Navigation", source: "Marine Technology News", time: "16 hours ago", image: "https://images.unsplash.com/photo-1559825481-12a05cc00344?w=100&h=60&fit=crop" },
+  { id: 9, title: "Bulk Carrier Fleet Growth Expected to Slow in 2026", source: "Baltic Exchange", time: "18 hours ago", image: "https://images.unsplash.com/photo-1583267318076-7c14406f2c9b?w=100&h=60&fit=crop" },
+  { id: 10, title: "Smart Port Infrastructure Investments Hit New Record", source: "Port Strategy", time: "20 hours ago", image: "https://images.unsplash.com/photo-1483683804023-6ccdb62f86ef?w=100&h=60&fit=crop" }
 ];
 
 // Sample news data - can be replaced with API fetch in production
@@ -49,11 +73,40 @@ export default function Dashboard(){
   const [weatherLoading, setWeatherLoading] = useState(true);
   const [shippingNews, setShippingNews] = useState([]);
   const [newsLoading, setNewsLoading] = useState(true);
+  const [apiVessels, setApiVessels] = useState([]);
+  const [currentTime, setCurrentTime] = useState(new Date());
   const newsScrollRef = useRef(null);
 
   useEffect(()=>{
     listenAIS(updateVessel);
   },[]);
+
+  // Fetch vessel data from Python API
+  useEffect(() => {
+    const fetchApiVessels = async () => {
+      try {
+        const response = await fetch('http://localhost:5001/api/vessels');
+        const data = await response.json();
+        if (Array.isArray(data)) {
+          setApiVessels(data);
+        }
+      } catch (error) {
+        console.error('Error fetching vessel data from API:', error);
+      }
+    };
+    fetchApiVessels();
+    // Refresh every 30 seconds
+    const interval = setInterval(fetchApiVessels, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Update current time every second for world clock
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   // Handle both individual vessel updates and batch updates from server
   const updateVessel=(data)=>{
@@ -158,7 +211,7 @@ export default function Dashboard(){
   return(
     <div style={{display:"flex", flexDirection:"column", height:"100vh", overflow:"hidden"}}>
       
-      {/* TOP ROW - Marquee Text */}
+      {/* TOP ROW - Marquee Text with API Vessel Data */}
       <div style={{
         background:"#1a365d",
         color:"white",
@@ -168,18 +221,28 @@ export default function Dashboard(){
       }}>
         <div style={{
           display:"inline-block",
-          animation:"marquee 20s linear infinite",
+          animation:"marquee 100s linear infinite",
           paddingLeft:"100%"
         }}>
-          <span style={{marginRight:"50px", fontSize:"16px", fontWeight:"bold"}}>
-            🚢 MARITIME AIS DASHBOARD - VESSEL TRACKING SYSTEM 
-          </span>
-          <span style={{marginRight:"50px", fontSize:"16px", fontWeight:"bold"}}>
-            📡 LIVE SHIP POSITIONS | PORT STATUS | WEATHER UPDATES 
-          </span>
-          <span style={{marginRight:"50px", fontSize:"16px", fontWeight:"bold"}}>
-            ⚓ TOTAL VESSELS TRACKED: {vesselArray.length} | STAY SAFE AT SEA
-          </span>
+          {apiVessels.length > 0 ? (
+            apiVessels.slice(0, 10).map((vessel, index) => (
+              <span key={index} style={{marginRight:"50px", fontSize:"16px", fontWeight:"bold"}}>
+                🚢 {vessel.vessel || 'N/A'} | {vessel.position || '-'} | {vessel.port || '-'} | ETA: {vessel.eta || '-'} | NPOC: {vessel.npoc || '-'}
+              </span>
+            ))
+          ) : (
+            <>
+              <span style={{marginRight:"50px", fontSize:"16px", fontWeight:"bold"}}>
+                🚢 MARITIME AIS DASHBOARD - VESSEL TRACKING SYSTEM 
+              </span>
+              <span style={{marginRight:"50px", fontSize:"16px", fontWeight:"bold"}}>
+                📡 LIVE SHIP POSITIONS | PORT STATUS | WEATHER UPDATES 
+              </span>
+              <span style={{marginRight:"50px", fontSize:"16px", fontWeight:"bold"}}>
+                ⚓ TOTAL VESSELS TRACKED: {vesselArray.length} | STAY SAFE AT SEA
+              </span>
+            </>
+          )}
         </div>
         <style>{`
           @keyframes marquee {
@@ -230,29 +293,33 @@ export default function Dashboard(){
               📰 Maritime News
             </h2>
             
-            {/* All Cards in Equal Width Grid */}
-            <div style={{display:"grid", gridTemplateColumns:"repeat(auto-fit, minmax(280px, 1fr))", gap:"20px", height:"100%"}}>
-              {/* Shipping News Card with Continuous Vertical Scrolling */}
+            {/* All Cards in Equal Width Responsive Grid - 3 columns */}
+            <div style={{display:"grid", gridTemplateColumns:"repeat(auto-fit, minmax(320px, 1fr))", gap:"20px", height:"100%"}}>
+              {/* Shipping News Card - Widget Style with Thumbnails */}
               <div style={{
-                background:"white",
-                borderRadius:"12px",
-                boxShadow:"0 4px 6px rgba(0,0,0,0.1)",
-                borderTop:"4px solid #805ad5",
+                background:"linear-gradient(135deg, #1a365d 0%, #2c5282 100%)",
+                borderRadius:"16px",
+                boxShadow:"0 10px 25px rgba(0,0,0,0.3)",
                 overflow:"hidden",
-                height:"80%"
+                height:"100%",
+                display:"flex",
+                flexDirection:"column"
               }}>
                 <div style={{
-                  padding:"15px 20px",
-                  borderBottom:"1px solid #e2e8f0",
+                  padding:"20px 25px",
+                  borderBottom:"1px solid rgba(255,255,255,0.1)",
                   display:"flex",
                   justifyContent:"space-between",
-                  alignItems:"center"
+                  alignItems:"center",
+                  background:"rgba(0,0,0,0.1)"
                 }}>
-                  <h3 style={{margin:0, color:"#2d3748", fontSize:"16px"}}>🚢 Latest Shipping News</h3>
-                  <span style={{color:"#718096", fontSize:"12px"}}>Continuous scrolling</span>
+                  <h3 style={{margin:0, color:"white", fontSize:"20px", fontWeight:"600", display:"flex", alignItems:"center", gap:"10px"}}>
+                    📰 Latest Shipping News
+                  </h3>
+                  <span style={{color:"rgba(255,255,255,0.7)", fontSize:"12px", background:"rgba(255,255,255,0.1)", padding:"4px 12px", borderRadius:"20px"}}>Live Updates</span>
                 </div>
                 <div style={{
-                  height:"200px",
+                  flex:1,
                   overflow:"hidden",
                   position:"relative"
                 }}>
@@ -260,11 +327,11 @@ export default function Dashboard(){
                   <div 
                     ref={newsScrollRef}
                     style={{
-                      animation: `scrollNews ${shippingNews.length * 8}s linear infinite`,
+                      animation: `scrollNews ${shippingNews.length * 10}s linear infinite`,
                     }}
                   >
                     {newsLoading ? (
-                      <div style={{padding:"20px", color:"#718096"}}>Loading shipping news...</div>
+                      <div style={{padding:"30px", color:"rgba(255,255,255,0.8)", textAlign:"center"}}>Loading shipping news...</div>
                     ) : (
                       <>
                         {/* Duplicate news items for seamless looping */}
@@ -272,24 +339,37 @@ export default function Dashboard(){
                           <div 
                             key={`${news.id}-${index}`}
                             style={{
-                              padding:"12px 20px",
-                              borderBottom:"1px solid #edf2f7",
+                              padding:"15px 25px",
+                              borderBottom:"1px solid rgba(255,255,255,0.1)",
                               display:"flex",
-                              justifyContent:"space-between",
-                              alignItems:"center"
+                              alignItems:"center",
+                              gap:"15px",
+                              transition:"background 0.3s",
+                              cursor:"pointer"
                             }}
                           >
-                            <div style={{flex:1}}>
-                              <span style={{color:"#2d3748", fontSize:"14px"}}>
+                            {/* Thumbnail Image */}
+                            <img 
+                              src={news.image || "https://images.unsplash.com/photo-1583267318076-7c14406f2c9b?w=100&h=60&fit=crop"} 
+                              alt="News thumbnail"
+                              style={{
+                                width: "80px", 
+                                height: "50px", 
+                                borderRadius: "8px",
+                                objectFit: "cover",
+                                flexShrink: 0,
+                                border: "2px solid rgba(255,255,255,0.2)"
+                              }}
+                            />
+                            <div style={{flex:1, minWidth: 0}}>
+                              <span style={{color:"white", fontSize:"15px", fontWeight:"500", lineHeight:"1.4", display:"block"}}>
                                 {news.title}
                               </span>
-                              <div style={{marginTop:"4px"}}>
-                                <span style={{color:"#718096", fontSize:"11px"}}>{news.source}</span>
+                              <div style={{marginTop:"6px", display:"flex", gap:"15px"}}>
+                                <span style={{color:"rgba(255,255,255,0.6)", fontSize:"12px"}}>📰 {news.source}</span>
+                                <span style={{color:"rgba(255,255,255,0.6)", fontSize:"12px"}}>🕐 {news.time}</span>
                               </div>
                             </div>
-                            <span style={{color:"#a0aec0", fontSize:"10px", whiteSpace:"nowrap", marginLeft:"10px"}}>
-                              {news.time}
-                            </span>
                           </div>
                         ))}
                       </>
@@ -304,16 +384,21 @@ export default function Dashboard(){
                 `}</style>
               </div>
               <div style={{
-                background:"white",
+                background:"linear-gradient(135deg, #c05621 0%, #dd6b20 100%)",
                 padding:"20px",
-                borderRadius:"12px",
-                boxShadow:"0 4px 6px rgba(0,0,0,0.1)",
-                borderTop:"4px solid #1a365d",
-                height:"80%"
+                borderRadius:"16px",
+                boxShadow:"0 10px 25px rgba(0,0,0,0.3)",
+                height:"100%",
+                color:"white"
               }}>
-                <h3 style={{margin:"0 0 10px 0", color:"#2d3748", fontSize:"16px"}}>Maritime Safety Alert</h3>
-                <p style={{color:"#4a5568", fontSize:"14px", margin:"0 0 10px 0"}}>New safety regulations effective 2026 for all vessels operating in Indian waters.</p>
-                <span style={{color:"#718096", fontSize:"12px"}}>2026-03-13</span>
+                <h3 style={{margin:"0 0 10px 0", fontSize:"20px", fontWeight:"600", display:"flex", alignItems:"center", gap:"10px"}}>
+                  ⚠️ Maritime Safety Alert
+                </h3>
+                <p style={{color:"rgba(255,255,255,0.9)", fontSize:"15px", margin:"0 0 15px 0", lineHeight:"1.5"}}>New safety regulations effective 2026 for all vessels operating in Indian waters. All captains must comply with updated AIS requirements.</p>
+                <div style={{display:"flex", alignItems:"center", gap:"10px"}}>
+                  <span style={{color:"rgba(255,255,255,0.7)", fontSize:"13px", background:"rgba(0,0,0,0.2)", padding:"6px 12px", borderRadius:"20px"}}>📅 2026-03-13</span>
+                  <span style={{color:"rgba(255,255,255,0.7)", fontSize:"13px", background:"rgba(0,0,0,0.2)", padding:"6px 12px", borderRadius:"20px"}}>🔔 Important</span>
+                </div>
               </div>
               {/* Port of Mumbai News card - commented out
               <div style={{
@@ -354,52 +439,125 @@ export default function Dashboard(){
                 <span style={{color:"#718096", fontSize:"12px"}}>Live Tracking</span>
               </div>
               */}
+              {/* Weather Card - Added to grid */}
               <div style={{
-                background:"white",
+                background:"linear-gradient(135deg, #0c4a6e 0%, #0369a1 50%, #0ea5e9 100%)",
                 padding:"20px",
-                borderRadius:"12px",
-                boxShadow:"0 4px 6px rgba(0,0,0,0.1)",
-                borderTop:"4px solid #e53e3e",
-                height:"80%"
+                borderRadius:"16px",
+                boxShadow:"0 10px 25px rgba(0,0,0,0.3)",
+                height:"100%",
+                color:"white"
               }}>
-                <h3 style={{margin:"0 0 10px 0", color:"#2d3748", fontSize:"16px"}}>🌧️ Weather & Air Quality</h3>
+                <h3 style={{margin:"0 0 15px 0", fontSize:"18px", fontWeight:"600", display:"flex", alignItems:"center", gap:"8px"}}>
+                  🌊 Live Weather & Air Quality
+                </h3>
                 {weatherLoading ? (
-                  <p style={{color:"#4a5568", fontSize:"14px"}}>Loading weather data...</p>
+                  <p style={{color:"rgba(255,255,255,0.8)", fontSize:"14px"}}>Loading weather data...</p>
                 ) : (
                   <div>
-                    <div style={{marginBottom:"10px"}}>
-                      <span style={{color:"#718096", fontSize:"12px"}}>Temperature:</span>
-                      <span style={{color:"#2d3748", fontSize:"14px", fontWeight:"bold", marginLeft:"8px"}}>
-                        {weather?.temperature_2m}°C
-                      </span>
-                      <span style={{color:"#718096", fontSize:"12px", marginLeft:"15px"}}>Humidity:</span>
-                      <span style={{color:"#2d3748", fontSize:"14px", fontWeight:"bold", marginLeft:"8px"}}>
-                        {weather?.relative_humidity_2m}%
-                      </span>
+                    {/* Weather GIF and Temperature */}
+                    <div style={{display:"flex", alignItems:"center", marginBottom:"20px", background:"rgba(255,255,255,0.2)", borderRadius:"12px", padding:"15px"}}>
+                      <img 
+                        src={getWeatherGif(weather?.weather_code)} 
+                        alt="Weather" 
+                        style={{width:"80px", height:"80px", borderRadius:"50%", objectFit:"cover", marginRight:"15px", border:"3px solid rgba(255,255,255,0.5)"}}
+                      />
+                      <div>
+                        <div style={{fontSize:"36px", fontWeight:"bold", lineHeight:"1"}}>
+                          {weather?.temperature_2m}°C
+                        </div>
+                        <div style={{fontSize:"12px", opacity: 0.9, marginTop:"5px"}}>📍 Mumbai Port Area</div>
+                      </div>
                     </div>
-                    <div style={{marginBottom:"10px"}}>
-                      <span style={{color:"#718096", fontSize:"12px"}}>Wind:</span>
-                      <span style={{color:"#2d3748", fontSize:"14px", fontWeight:"bold", marginLeft:"8px"}}>
-                        {weather?.wind_speed_10m} km/h
-                      </span>
-                      <span style={{color:"#718096", fontSize:"12px", marginLeft:"15px"}}>Direction:</span>
-                      <span style={{color:"#2d3748", fontSize:"14px", fontWeight:"bold", marginLeft:"8px"}}>
-                        {weather?.wind_direction_10m}°
-                      </span>
+                    
+                    {/* Weather Details Grid */}
+                    <div style={{display:"grid", gridTemplateColumns:"1fr 1fr", gap:"10px", marginBottom:"15px"}}>
+                      <div style={{background:"rgba(255,255,255,0.15)", borderRadius:"10px", padding:"12px", textAlign:"center", border:"1px solid rgba(255,255,255,0.1)"}}>
+                        <div style={{fontSize:"20px", marginBottom:"5px"}}>💧</div>
+                        <div style={{fontSize:"11px", opacity: 0.7}}>Humidity</div>
+                        <div style={{fontSize:"16px", fontWeight:"bold"}}>{weather?.relative_humidity_2m}%</div>
+                      </div>
+                      <div style={{background:"rgba(255,255,255,0.15)", borderRadius:"10px", padding:"12px", textAlign:"center", border:"1px solid rgba(255,255,255,0.1)"}}>
+                        <div style={{fontSize:"20px", marginBottom:"5px"}}>💨</div>
+                        <div style={{fontSize:"11px", opacity: 0.7}}>Wind Speed</div>
+                        <div style={{fontSize:"16px", fontWeight:"bold"}}>{weather?.wind_speed_10m} km/h</div>
+                      </div>
+                      <div style={{background:"rgba(255,255,255,0.15)", borderRadius:"10px", padding:"12px", textAlign:"center", border:"1px solid rgba(255,255,255,0.1)"}}>
+                        <div style={{fontSize:"20px", marginBottom:"5px"}}>🧭</div>
+                        <div style={{fontSize:"11px", opacity: 0.7}}>Wind Direction</div>
+                        <div style={{fontSize:"16px", fontWeight:"bold"}}>{weather?.wind_direction_10m}°</div>
+                      </div>
+                      <div style={{background:"rgba(255,255,255,0.15)", borderRadius:"10px", padding:"12px", textAlign:"center", border:"1px solid rgba(255,255,255,0.1)"}}>
+                        <div style={{fontSize:"20px", marginBottom:"5px"}}>🌬️</div>
+                        <div style={{fontSize:"11px", opacity: 0.7}}>Air Quality</div>
+                        <div style={{fontSize:"16px", fontWeight:"bold", color: getAQIStatus(airQuality?.us_aqi).color}}>{airQuality?.us_aqi}</div>
+                      </div>
                     </div>
-                    <div>
-                      <span style={{color:"#718096", fontSize:"12px"}}>Air Quality (AQI):</span>
-                      <span style={{color:"#2d3748", fontSize:"14px", fontWeight:"bold", marginLeft:"8px"}}>
-                        {airQuality?.us_aqi}
-                      </span>
-                      <span style={{color:"#718096", fontSize:"12px", marginLeft:"15px"}}>PM2.5:</span>
-                      <span style={{color:"#2d3748", fontSize:"14px", fontWeight:"bold", marginLeft:"8px"}}>
-                        {airQuality?.pm2_5} μg/m³
-                      </span>
+                    
+                    {/* AQI Status Bar */}
+                    <div style={{background:"rgba(255,255,255,0.25)", borderRadius:"10px", padding:"12px", border:"1px solid rgba(255,255,255,0.2)"}}>
+                      <div style={{display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"8px"}}>
+                        <span style={{fontSize:"12px", fontWeight:"600", color:"white"}}>Air Quality Index:</span>
+                        <span style={{fontSize:"12px", fontWeight:"bold", color: getAQIStatus(airQuality?.us_aqi).color, background:"white", padding:"2px 10px", borderRadius:"12px", boxShadow:"0 2px 4px rgba(0,0,0,0.2)"}}>
+                          {getAQIStatus(airQuality?.us_aqi).status}
+                        </span>
+                      </div>
+                      <div style={{display:"flex", gap:"4px", marginBottom:"5px"}}>
+                        <div style={{flex:1, height:"8px", background:"#22c55e", borderRadius:"4px", opacity: airQuality?.us_aqi <= 50 ? 1 : 0.2}}></div>
+                        <div style={{flex:1, height:"8px", background:"#eab308", borderRadius:"4px", opacity: airQuality?.us_aqi > 50 && airQuality?.us_aqi <= 100 ? 1 : 0.2}}></div>
+                        <div style={{flex:1, height:"8px", background:"#f97316", borderRadius:"4px", opacity: airQuality?.us_aqi > 100 && airQuality?.us_aqi <= 150 ? 1 : 0.2}}></div>
+                        <div style={{flex:1, height:"8px", background:"#ef4444", borderRadius:"4px", opacity: airQuality?.us_aqi > 150 && airQuality?.us_aqi <= 200 ? 1 : 0.2}}></div>
+                        <div style={{flex:1, height:"8px", background:"#a855f7", borderRadius:"4px", opacity: airQuality?.us_aqi > 200 ? 1 : 0.2}}></div>
+                      </div>
+                      <div style={{display:"flex", justifyContent:"space-between", fontSize:"9px", opacity: 0.6}}>
+                        <span>Good</span><span>Moderate</span><span>Unhealthy</span><span>Very</span><span>Hazardous</span>
+                      </div>
+                    </div>
+                    
+                    {/* World Clock Analog */}
+                    <div style={{marginTop:"15px", background:"rgba(255,255,255,0.15)", borderRadius:"10px", padding:"12px", border:"1px solid rgba(255,255,255,0.1)"}}>
+                      <div style={{fontSize:"12px", fontWeight:"600", marginBottom:"10px", textAlign:"center"}}>🌐 World Clock</div>
+                      <div style={{display:"grid", gridTemplateColumns:"1fr 1fr 1fr 1fr", gap:"8px"}}>
+                        {/* Mumbai */}
+                        <div style={{textAlign:"center"}}>
+                          <div style={{width:"36px", height:"36px", borderRadius:"50%", border:"2px solid rgba(255,255,255,0.5)", margin:"0 auto 5px", position:"relative", background:"rgba(255,255,255,0.1)"}}>
+                            <div style={{position:"absolute", top:"50%", left:"50%", width:"2px", height:"12px", background:"white", transformOrigin:"bottom center", transform:"translate(-50%, -100%) rotate(" + ((currentTime.getHours() + 5.5) % 24 * 30 + currentTime.getMinutes() * 0.5) + "deg)"}}></div>
+                            <div style={{position:"absolute", top:"50%", left:"50%", width:"1px", height:"14px", background:"#fbbf24", transformOrigin:"bottom center", transform:"translate(-50%, -100%) rotate(" + (currentTime.getMinutes() * 6 + currentTime.getSeconds() * 0.1) + "deg)"}}></div>
+                          </div>
+                          <div style={{fontSize:"10px", opacity: 0.8}}>Mumbai</div>
+                          <div style={{fontSize:"11px", fontWeight:"bold"}}>{new Date(currentTime.getTime()).toLocaleTimeString('en-US', {timeZone: 'Asia/Kolkata', hour: '2-digit', minute:'2-digit', hour12: false})}</div>
+                        </div>
+                        {/* London (UK) */}
+                        <div style={{textAlign:"center"}}>
+                          <div style={{width:"36px", height:"36px", borderRadius:"50%", border:"2px solid rgba(255,255,255,0.5)", margin:"0 auto 5px", position:"relative", background:"rgba(255,255,255,0.1)"}}>
+                            <div style={{position:"absolute", top:"50%", left:"50%", width:"2px", height:"12px", background:"white", transformOrigin:"bottom center", transform:"translate(-50%, -100%) rotate(" + ((currentTime.getUTCHours() + 0) % 24 * 30 + currentTime.getUTCMinutes() * 0.5) + "deg)"}}></div>
+                            <div style={{position:"absolute", top:"50%", left:"50%", width:"1px", height:"14px", background:"#fbbf24", transformOrigin:"bottom center", transform:"translate(-50%, -100%) rotate(" + (currentTime.getUTCMinutes() * 6 + currentTime.getUTCSeconds() * 0.1) + "deg)"}}></div>
+                          </div>
+                          <div style={{fontSize:"10px", opacity: 0.8}}>London</div>
+                          <div style={{fontSize:"11px", fontWeight:"bold"}}>{new Date(currentTime.getTime()).toLocaleTimeString('en-US', {timeZone: 'Europe/London', hour: '2-digit', minute:'2-digit', hour12: false})}</div>
+                        </div>
+                        {/* New York (USA) */}
+                        <div style={{textAlign:"center"}}>
+                          <div style={{width:"36px", height:"36px", borderRadius:"50%", border:"2px solid rgba(255,255,255,0.5)", margin:"0 auto 5px", position:"relative", background:"rgba(255,255,255,0.1)"}}>
+                            <div style={{position:"absolute", top:"50%", left:"50%", width:"2px", height:"12px", background:"white", transformOrigin:"bottom center", transform:"translate(-50%, -100%) rotate(" + ((currentTime.getUTCHours() - 5 + 24) % 24 * 30 + currentTime.getUTCMinutes() * 0.5) + "deg)"}}></div>
+                            <div style={{position:"absolute", top:"50%", left:"50%", width:"1px", height:"14px", background:"#fbbf24", transformOrigin:"bottom center", transform:"translate(-50%, -100%) rotate(" + (currentTime.getUTCMinutes() * 6 + currentTime.getUTCSeconds() * 0.1) + "deg)"}}></div>
+                          </div>
+                          <div style={{fontSize:"10px", opacity: 0.8}}>New York</div>
+                          <div style={{fontSize:"11px", fontWeight:"bold"}}>{new Date(currentTime.getTime()).toLocaleTimeString('en-US', {timeZone: 'America/New_York', hour: '2-digit', minute:'2-digit', hour12: false})}</div>
+                        </div>
+                        {/* Tokyo */}
+                        <div style={{textAlign:"center"}}>
+                          <div style={{width:"36px", height:"36px", borderRadius:"50%", border:"2px solid rgba(255,255,255,0.5)", margin:"0 auto 5px", position:"relative", background:"rgba(255,255,255,0.1)"}}>
+                            <div style={{position:"absolute", top:"50%", left:"50%", width:"2px", height:"12px", background:"white", transformOrigin:"bottom center", transform:"translate(-50%, -100%) rotate(" + ((currentTime.getUTCHours() + 9) % 24 * 30 + currentTime.getUTCMinutes() * 0.5) + "deg)"}}></div>
+                            <div style={{position:"absolute", top:"50%", left:"50%", width:"1px", height:"14px", background:"#fbbf24", transformOrigin:"bottom center", transform:"translate(-50%, -100%) rotate(" + (currentTime.getUTCMinutes() * 6 + currentTime.getUTCSeconds() * 0.1) + "deg)"}}></div>
+                          </div>
+                          <div style={{fontSize:"10px", opacity: 0.8}}>Tokyo</div>
+                          <div style={{fontSize:"11px", fontWeight:"bold"}}>{new Date(currentTime.getTime()).toLocaleTimeString('en-US', {timeZone: 'Asia/Tokyo', hour: '2-digit', minute:'2-digit', hour12: false})}</div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 )}
-                <span style={{color:"#718096", fontSize:"12px", display:"block", marginTop:"10px"}}>Mumbai, India - Live Data</span>
               </div>
             </div>
           </div>
