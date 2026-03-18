@@ -2,6 +2,7 @@
 import React,{useEffect,useState,useRef} from "react";
 import {listenAIS} from "../services/socketService";
 import VesselMap from "../components/VesselMap";
+import { vesselImages } from "../config/vesselImages";
 
 // Configuration - can be overridden via environment variables
 const CONFIG = {
@@ -68,6 +69,9 @@ export default function Dashboard(){
 
   const [vessels,setVessels]=useState({});
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [currentPhotoSlide, setCurrentPhotoSlide] = useState(0);
+  const [vesselPhotos, setVesselPhotos] = useState([]);
+  const [randomPhotoOrder, setRandomPhotoOrder] = useState([]);
   const [weather, setWeather] = useState(null);
   const [airQuality, setAirQuality] = useState(null);
   const [weatherLoading, setWeatherLoading] = useState(true);
@@ -195,17 +199,55 @@ export default function Dashboard(){
   // Auto-advance carousel every 7 minutes
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentSlide(prev => (prev === 1 ? 0 : prev + 1));
+      setCurrentSlide(prev => (prev === 2 ? 0 : prev + 1));
     }, 420000);
     return () => clearInterval(interval);
   }, []);
 
+  // Load vessel photos from images folder and set up random slideshow
+  useEffect(() => {
+    // Use images from config - users can customize in client/src/config/vesselImages.js
+    const vesselImagesList = vesselImages;
+    
+    setVesselPhotos(vesselImagesList);
+    
+    // Create random order for slideshow
+    const shuffled = [...vesselImagesList].sort(() => Math.random() - 0.5);
+    setRandomPhotoOrder(shuffled);
+    
+    // Auto-advance photo carousel every 4 seconds for random slideshow feel
+    const photoInterval = setInterval(() => {
+      setCurrentPhotoSlide(prev => {
+        const totalPhotos = shuffled.length;
+        // Random jump to create unpredictable feel
+        const randomJump = Math.floor(Math.random() * 3) + 1;
+        return (prev + randomJump) % totalPhotos;
+      });
+    }, 4000);
+    
+    return () => clearInterval(photoInterval);
+  }, []);
+
   const nextSlide = () => {
-    setCurrentSlide(prev => (prev === 1 ? 0 : prev + 1));
+    setCurrentSlide(prev => (prev === 2 ? 0 : prev + 1));
   };
 
   const prevSlide = () => {
-    setCurrentSlide(prev => (prev === 0 ? 1 : prev - 1));
+    setCurrentSlide(prev => (prev === 0 ? 2 : prev - 1));
+  };
+
+  const nextPhotoSlide = () => {
+    setCurrentPhotoSlide(prev => {
+      const totalPhotos = randomPhotoOrder.length;
+      return (prev + 1) % totalPhotos;
+    });
+  };
+
+  const prevPhotoSlide = () => {
+    setCurrentPhotoSlide(prev => {
+      const totalPhotos = randomPhotoOrder.length;
+      return prev === 0 ? totalPhotos - 1 : prev - 1;
+    });
   };
 
   return(
@@ -221,7 +263,7 @@ export default function Dashboard(){
       }}>
         <div style={{
           display:"inline-block",
-          animation:"marquee 100s linear infinite",
+          animation:"marquee 120s linear infinite",
           paddingLeft:"100%"
         }}>
           {apiVessels.length > 0 ? (
@@ -353,8 +395,8 @@ export default function Dashboard(){
                               src={news.image || "https://images.unsplash.com/photo-1583267318076-7c14406f2c9b?w=100&h=60&fit=crop"} 
                               alt="News thumbnail"
                               style={{
-                                width: "80px", 
-                                height: "50px", 
+                                width: "clamp(60px, 15vw, 100px)", 
+                                height: "clamp(40px, 10vw, 60px)", 
                                 borderRadius: "8px",
                                 objectFit: "cover",
                                 flexShrink: 0,
@@ -456,11 +498,11 @@ export default function Dashboard(){
                 ) : (
                   <div>
                     {/* Weather GIF and Temperature */}
-                    <div style={{display:"flex", alignItems:"center", marginBottom:"20px", background:"rgba(255,255,255,0.2)", borderRadius:"12px", padding:"15px"}}>
+                    <div style={{display:"flex", alignItems:"center", marginBottom:"20px", background:"rgba(255,255,255,0.2)", borderRadius:"12px", padding:"15px", flexWrap:"wrap", gap:"10px"}}>
                       <img 
                         src={getWeatherGif(weather?.weather_code)} 
                         alt="Weather" 
-                        style={{width:"80px", height:"80px", borderRadius:"50%", objectFit:"cover", marginRight:"15px", border:"3px solid rgba(255,255,255,0.5)"}}
+                        style={{width:"clamp(50px, 15vw, 80px)", height:"clamp(50px, 15vw, 80px)", borderRadius:"50%", objectFit:"cover", border:"3px solid rgba(255,255,255,0.5)"}}
                       />
                       <div>
                         <div style={{fontSize:"36px", fontWeight:"bold", lineHeight:"1"}}>
@@ -572,6 +614,191 @@ export default function Dashboard(){
               <VesselMap vessels={vesselArray} center={[CONFIG.latitude, CONFIG.longitude]} zoom={CONFIG.zoom}/>
             </div>
           </div>
+
+          {/* Slide 2: Vessel Photos */}
+          <div style={{
+            width:"100%",
+            height:"100%",
+            overflow:"auto",
+            background:"linear-gradient(135deg, #1a365d 0%, #2c5282 50%, #1a365d 100%)",
+            padding:"20px",
+            display: currentSlide === 2 ? "block" : "none"
+          }}>
+            <h2 style={{color:"white", marginBottom:"20px", borderBottom:"2px solid rgba(255,255,255,0.3)", paddingBottom:"10px", display:"flex", alignItems:"center", gap:"10px"}}>
+              🚢 Vessel Photos
+            </h2>
+            
+            {/* Nested Photo Carousel with Random Slideshow Feel */}
+            <div style={{
+              background:"rgba(0,0,0,0.3)",
+              borderRadius:"20px",
+              padding:"20px",
+              boxShadow:"0 10px 30px rgba(0,0,0,0.5)"
+            }}>
+              {/* Main Photo Display */}
+              <div style={{
+                position:"relative",
+                width:"100%",
+                maxHeight:"65vh",
+                minHeight:"300px",
+                borderRadius:"15px",
+                overflow:"hidden",
+                boxShadow:"0 8px 25px rgba(0,0,0,0.4)"
+              }}>
+                {/* Photo Slide Animation */}
+                <div style={{
+                  width:"100%",
+                  height:"100%",
+                  transition:"transform 0.5s ease-in-out, opacity 0.5s ease-in-out",
+                  transform: `translateX(0)`,
+                  opacity: 1
+                }}>
+                  {randomPhotoOrder.length > 0 && randomPhotoOrder[currentPhotoSlide] && (
+                    <>
+                      <img 
+                        src={randomPhotoOrder[currentPhotoSlide].src} 
+                        alt={randomPhotoOrder[currentPhotoSlide].title}
+                        style={{
+                          width:"100%",
+                          height:"auto",
+                          maxHeight:"65vh",
+                          objectFit:"contain",
+                          objectPosition:"center"
+                        }}
+                      />
+                      {/* Photo Overlay */}
+                      <div style={{
+                        position:"absolute",
+                        bottom:0,
+                        left:0,
+                        right:0,
+                        background:"linear-gradient(transparent, rgba(0,0,0,0.8))",
+                        padding:"30px 20px 20px",
+                        color:"white"
+                      }}>
+                        <h3 style={{margin:0, fontSize:"clamp(16px, 3vw, 24px)", fontWeight:"bold"}}>
+                          {randomPhotoOrder[currentPhotoSlide].title}
+                        </h3>
+                        <p style={{margin:"5px 0 0", fontSize:"clamp(12px, 2vw, 16px)", opacity:0.9}}>
+                          🚢 {randomPhotoOrder[currentPhotoSlide].vessel}
+                        </p>
+                      </div>
+                    </>
+                  )}
+                </div>
+                
+                {/* Previous Button */}
+                <button
+                  onClick={prevPhotoSlide}
+                  style={{
+                    position:"absolute",
+                    left:"15px",
+                    top:"50%",
+                    transform:"translateY(-50%)",
+                    background:"rgba(0,0,0,0.6)",
+                    border:"none",
+                    borderRadius:"50%",
+                    width:"clamp(35px, 6vw, 50px)",
+                    height:"clamp(35px, 6vw, 50px)",
+                    cursor:"pointer",
+                    display:"flex",
+                    alignItems:"center",
+                    justifyContent:"center",
+                    color:"white",
+                    fontSize:"clamp(16px, 3vw, 24px)",
+                    transition:"background 0.3s, transform 0.3s",
+                    zIndex:10
+                  }}
+                  onMouseOver={(e) => {e.target.style.background = "rgba(0,0,0,0.8)"; e.target.style.transform = "translateY(-50%) scale(1.1)";}}
+                  onMouseOut={(e) => {e.target.style.background = "rgba(0,0,0,0.6)"; e.target.style.transform = "translateY(-50%) scale(1)";}}
+                  aria-label="Previous photo"
+                >
+                  ‹
+                </button>
+                
+                {/* Next Button */}
+                <button
+                  onClick={nextPhotoSlide}
+                  style={{
+                    position:"absolute",
+                    right:"15px",
+                    top:"50%",
+                    transform:"translateY(-50%)",
+                    background:"rgba(0,0,0,0.6)",
+                    border:"none",
+                    borderRadius:"50%",
+                    width:"clamp(35px, 6vw, 50px)",
+                    height:"clamp(35px, 6vw, 50px)",
+                    cursor:"pointer",
+                    display:"flex",
+                    alignItems:"center",
+                    justifyContent:"center",
+                    color:"white",
+                    fontSize:"clamp(16px, 3vw, 24px)",
+                    transition:"background 0.3s, transform 0.3s",
+                    zIndex:10
+                  }}
+                  onMouseOver={(e) => {e.target.style.background = "rgba(0,0,0,0.8)"; e.target.style.transform = "translateY(-50%) scale(1.1)";}}
+                  onMouseOut={(e) => {e.target.style.background = "rgba(0,0,0,0.6)"; e.target.style.transform = "translateY(-50%) scale(1)";}}
+                  aria-label="Next photo"
+                >
+                  ›
+                </button>
+                
+                {/* Slideshow Indicator */}
+                <div style={{
+                  position:"absolute",
+                  top:"15px",
+                  right:"15px",
+                  background:"rgba(0,0,0,0.6)",
+                  padding:"8px 15px",
+                  borderRadius:"20px",
+                  color:"white",
+                  fontSize:"12px",
+                  display:"flex",
+                  alignItems:"center",
+                  gap:"8px"
+                }}>
+                  <span>🎲</span>
+                </div>
+              </div>
+              
+              {/* Photo Thumbnails Strip - Hidden */}
+              <div style={{
+                display: "none"
+              }}>
+                {randomPhotoOrder.map((photo, index) => (
+                  <div 
+                    key={photo.id}
+                    onClick={() => setCurrentPhotoSlide(index)}
+                    style={{
+                      flexShrink:0,
+                      width:"clamp(60px, 12vw, 100px)",
+                      height:"clamp(40px, 8vw, 65px)",
+                      borderRadius:"8px",
+                      overflow:"hidden",
+                      cursor:"pointer",
+                      border: currentPhotoSlide === index ? "3px solid #fbbf24" : "3px solid transparent",
+                      opacity: currentPhotoSlide === index ? 1 : 0.6,
+                      transition:"all 0.3s ease"
+                    }}
+                  >
+                    <img 
+                      src={photo.src} 
+                      alt={photo.title}
+                      style={{
+                        width:"100%",
+                        height:"100%",
+                        objectFit:"cover"
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
+              
+
+            </div>
+          </div>
           
         </div>
 
@@ -608,6 +835,19 @@ export default function Dashboard(){
               transition: "background 0.3s"
             }}
             aria-label="Show News"
+          />
+          <button 
+            onClick={() => setCurrentSlide(2)}
+            style={{
+              width:"12px",
+              height:"12px",
+              borderRadius:"50%",
+              border:"none",
+              cursor:"pointer",
+              background: currentSlide === 2 ? "#1a365d" : "#cbd5e0",
+              transition: "background 0.3s"
+            }}
+            aria-label="Show Vessel Photos"
           />
         </div>
 
