@@ -6,9 +6,9 @@ import { vesselImages } from "../config/vesselImages";
 
 // Configuration - can be overridden via environment variables
 const CONFIG = {
-  // Default location: Mumbai port area
-  latitude: parseFloat(process.env.REACT_APP_DEFAULT_LAT || "19.076"),
-  longitude: parseFloat(process.env.REACT_APP_DEFAULT_LON || "72.8777"),
+  // Default location: Marol, Andheri, Mumbai
+  latitude: parseFloat(process.env.REACT_APP_DEFAULT_LAT || "19.1136"),
+  longitude: parseFloat(process.env.REACT_APP_DEFAULT_LON || "72.8697"),
   zoom: parseInt(process.env.REACT_APP_DEFAULT_ZOOM || "6", 10),
   // Weather refresh interval in milliseconds (default 10 minutes)
   weatherRefreshInterval: parseInt(process.env.REACT_APP_WEATHER_REFRESH_MIN || "10", 10) * 60000
@@ -16,20 +16,20 @@ const CONFIG = {
 
 // Free maritime/shipping news API - using sample data with API fetch capability
 // To use a real API, sign up at https://newsdata.io or https://gnews.io and add your API key
-const SHIPPING_NEWS_API = process.env.REACT_APP_SHIPPING_NEWS_API || "";
+const SHIPPING_NEWS_API = process.env.REACT_APP_SHIPPING_NEWS_API || "pub_ad359a3fbb1644f6a9c20b970bf8c5f5";
 
-// Weather code to GIF mapping for Open-Meteo weather codes
-const getWeatherGif = (weatherCode) => {
+// Weather code to emoji mapping for Open-Meteo weather codes
+const getWeatherEmoji = (weatherCode) => {
   // WMO Weather interpretation codes
-  if (weatherCode === 0) return "https://media.giphy.com/media/l0HlNQ03J5JxX6lva/giphy.gif"; // Clear sky
-  if (weatherCode >= 1 && weatherCode <= 3) return "https://media.giphy.com/media/3o7bu3XilJ5BOiSGic/giphy.gif"; // Partly cloudy
-  if (weatherCode >= 45 && weatherCode <= 48) return "https://media.giphy.com/media/3o7TKSf6gOu6RFUrkC/giphy.gif"; // Fog
-  if (weatherCode >= 51 && weatherCode <= 67) return "https://media.giphy.com/media/l0Iy69RBwtdmvwkIo/giphy.gif"; // Drizzle/Rain
-  if (weatherCode >= 71 && weatherCode <= 77) return "https://media.giphy.com/media/l0Iyl55kTeh71nTXy/giphy.gif"; // Snow
-  if (weatherCode >= 80 && weatherCode <= 82) return "https://media.giphy.com/media/xT5LMHxhOfscxPfIfm/giphy.gif"; // Rain showers
-  if (weatherCode >= 85 && weatherCode <= 86) return "https://media.giphy.com/media/l0Iyl55kTeh71nTXy/giphy.gif"; // Snow showers
-  if (weatherCode >= 95) return "https://media.giphy.com/media/l0HlBO2eyKzSZk0nE/giphy.gif"; // Thunderstorm
-  return "https://media.giphy.com/media/l0HlNQ03J5JxX6lva/giphy.gif"; // Default clear
+  if (weatherCode === 0) return "☀️"; // Clear sky
+  if (weatherCode >= 1 && weatherCode <= 3) return "⛅"; // Partly cloudy
+  if (weatherCode >= 45 && weatherCode <= 48) return "🌫️"; // Fog
+  if (weatherCode >= 51 && weatherCode <= 67) return "🌧️"; // Drizzle/Rain
+  if (weatherCode >= 71 && weatherCode <= 77) return "❄️"; // Snow
+  if (weatherCode >= 80 && weatherCode <= 82) return "🌦️"; // Rain showers
+  if (weatherCode >= 85 && weatherCode <= 86) return "🌨️"; // Snow showers
+  if (weatherCode >= 95) return "⛈️"; // Thunderstorm
+  return "☀️"; // Default clear
 };
 
 // Get AQI status and color
@@ -42,28 +42,9 @@ const getAQIStatus = (aqi) => {
   return { status: "Hazardous", color: "#7f1d1d" };
 };
 
-// Sample shipping news data - can be replaced with API fetch
-const sampleShippingNews = [
-  { id: 1, title: "Global Container Traffic Reaches Record High in 2026", source: "Maritime Journal", time: "2 hours ago", image: "https://images.unsplash.com/photo-1494412574643-ff11b0a5c1c3?w=100&h=60&fit=crop" },
-  { id: 2, title: "New Green Shipping Corridors Announced for Asia-Europe Route", source: "Shipping Watch", time: "4 hours ago", image: "https://images.unsplash.com/photo-1519904981063-b0cf448d479e?w=100&h=60&fit=crop" },
-  { id: 3, title: "Port Automation Trends: AI Transforming Terminal Operations", source: "TradeWinds", time: "6 hours ago", image: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=100&h=60&fit=crop" },
-  { id: 4, title: "IMO 2026 Emissions Standards: Industry Prepares for Compliance", source: "Lloyd's List", time: "8 hours ago", image: "https://images.unsplash.com/photo-1569254821904-34d91231e0c7?w=100&h=60&fit=crop" },
-  { id: 5, title: "Container Shipping Rates Stabilize After Year of Volatility", source: "FreightWaves", time: "10 hours ago", image: "https://images.unsplash.com/photo-1577140917170-285929fb55b7?w=100&h=60&fit=crop" },
-  { id: 6, title: "Major Cruise Line Expands Operations in Indian Ocean Region", source: "Cruise Industry News", time: "12 hours ago", image: "https://images.unsplash.com/photo-1548574505-5e239809ee19?w=100&h=60&fit=crop" },
-  { id: 7, title: "Offshore Wind Farm Projects Drive New Vessel Demand", source: "Renewable Energy Marine", time: "14 hours ago", image: "https://images.unsplash.com/photo-1532601224476-15c79f2f7a51?w=100&h=60&fit=crop" },
-  { id: 8, title: "Digital Twin Technology Revolutionizing Ship Navigation", source: "Marine Technology News", time: "16 hours ago", image: "https://images.unsplash.com/photo-1559825481-12a05cc00344?w=100&h=60&fit=crop" },
-  { id: 9, title: "Bulk Carrier Fleet Growth Expected to Slow in 2026", source: "Baltic Exchange", time: "18 hours ago", image: "https://images.unsplash.com/photo-1583267318076-7c14406f2c9b?w=100&h=60&fit=crop" },
-  { id: 10, title: "Smart Port Infrastructure Investments Hit New Record", source: "Port Strategy", time: "20 hours ago", image: "https://images.unsplash.com/photo-1483683804023-6ccdb62f86ef?w=100&h=60&fit=crop" }
-];
 
-// Sample news data - can be replaced with API fetch in production
-const newsItems = [
-  { id: 1, title: "Maritime Safety Alert: New Regulations Effective 2026", date: "2026-03-13" },
-  { id: 2, title: "Port of Mumbai Handles Record Cargo in February", date: "2026-03-12" },
-  { id: 3, title: "AIS Tracking System Upgrade Completed", date: "2026-03-11" },
-  { id: 4, title: "Weather Advisory: Cyclone Warning in Arabian Sea", date: "2026-03-10" },
-  { id: 5, title: "New VTS Station Operational at Jawaharlal Nehru Port", date: "2026-03-09" },
-];
+
+
 
 export default function Dashboard(){
 
@@ -162,7 +143,7 @@ export default function Dashboard(){
     return () => clearInterval(interval);
   }, []);
 
-  // Fetch shipping news from API or use sample data
+  // Fetch shipping news from API
   useEffect(() => {
     const fetchShippingNews = async () => {
       try {
@@ -181,14 +162,10 @@ export default function Dashboard(){
             }));
             setShippingNews(formattedNews);
           }
-        } else {
-          // Use sample data when no API key is provided
-          setShippingNews(sampleShippingNews);
         }
         setNewsLoading(false);
       } catch (error) {
         console.error("Error fetching shipping news:", error);
-        setShippingNews(sampleShippingNews);
         setNewsLoading(false);
       }
     };
@@ -196,11 +173,11 @@ export default function Dashboard(){
     fetchShippingNews();
   }, []);
 
-  // Auto-advance carousel every 7 minutes
+  // Auto-advance carousel every 5 minutes
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentSlide(prev => (prev === 2 ? 0 : prev + 1));
-    }, 420000);
+    }, 300000); // 5 minutes = 300000ms
     return () => clearInterval(interval);
   }, []);
 
@@ -313,9 +290,7 @@ export default function Dashboard(){
           
           {/* Slide 1: Map Section */}
           <div style={{
-            width:"100%",
-            height:"100%",
-            display: currentSlide === 0 ? "block" : "none"
+            position: "absolute", top: 0, left: 0, width: "100%", height: "100%", opacity: currentSlide === 0 ? 1 : 0, transition: "opacity 0.8s ease-in-out", pointerEvents: currentSlide === 0 ? "auto" : "none", zIndex: currentSlide === 0 ? 1 : 0
           }}>
             <div style={{width:"100%", height:"100%"}}>
               <VesselMap vessels={vesselArray} center={[CONFIG.latitude, CONFIG.longitude]} zoom={CONFIG.zoom}/>
@@ -329,7 +304,7 @@ export default function Dashboard(){
             overflow:"auto",
             background:"#f0f4f8",
             padding:"20px",
-            display: currentSlide === 1 ? "block" : "none"
+            position: "absolute", top: 0, left: 0, opacity: currentSlide === 1 ? 1 : 0, transition: "opacity 0.8s ease-in-out", pointerEvents: currentSlide === 1 ? "auto" : "none", zIndex: currentSlide === 1 ? 1 : 0
           }}>
             <h2 style={{color:"#1a365d", marginBottom:"20px", borderBottom:"2px solid #1a365d", paddingBottom:"10px"}}>
               📰 Maritime News
@@ -442,45 +417,7 @@ export default function Dashboard(){
                   <span style={{color:"rgba(255,255,255,0.7)", fontSize:"13px", background:"rgba(0,0,0,0.2)", padding:"6px 12px", borderRadius:"20px"}}>🔔 Important</span>
                 </div>
               </div>
-              {/* Port of Mumbai News card - commented out
-              <div style={{
-                background:"white",
-                padding:"20px",
-                borderRadius:"12px",
-                boxShadow:"0 4px 6px rgba(0,0,0,0.1)",
-                borderTop:"4px solid #2b6cb0"
-              }}>
-                <h3 style={{margin:"0 0 10px 0", color:"#2d3748", fontSize:"16px"}}>Port of Mumbai News</h3>
-                <p style={{color:"#4a5568", fontSize:"14px", margin:"0 0 10px 0"}}>Record cargo handling in February 2026 shows 15% increase in throughput.</p>
-                <span style={{color:"#718096", fontSize:"12px"}}>2026-03-12</span>
-              </div>
-              */}
-              {/* Vessel Statistics card - commented out
-              <div style={{
-                background:"white",
-                padding:"20px",
-                borderRadius:"12px",
-                boxShadow:"0 4px 6px rgba(0,0,0,0.1)",
-                borderTop:"4px solid #38a169"
-              }}>
-                <h3 style={{margin:"0 0 10px 0", color:"#2d3748", fontSize:"16px"}}>📊 Vessel Statistics</h3>
-                <div style={{marginBottom:"10px"}}>
-                  <div style={{display:"flex", justifyContent:"space-between", marginBottom:"8px"}}>
-                    <span style={{color:"#718096", fontSize:"12px"}}>Total Vessels Tracked:</span>
-                    <span style={{color:"#2d3748", fontSize:"14px", fontWeight:"bold"}}>{vesselArray.length}</span>
-                  </div>
-                  <div style={{display:"flex", justifyContent:"space-between", marginBottom:"8px"}}>
-                    <span style={{color:"#718096", fontSize:"12px"}}>Active in Region:</span>
-                    <span style={{color:"#2d3748", fontSize:"14px", fontWeight:"bold"}}>{vesselArray.filter(v => v.speed > 0).length}</span>
-                  </div>
-                  <div style={{display:"flex", justifyContent:"space-between"}}>
-                    <span style={{color:"#718096", fontSize:"12px"}}>At Anchor/Moored:</span>
-                    <span style={{color:"#2d3748", fontSize:"14px", fontWeight:"bold"}}>{vesselArray.filter(v => v.speed === 0).length}</span>
-                  </div>
-                </div>
-                <span style={{color:"#718096", fontSize:"12px"}}>Live Tracking</span>
-              </div>
-              */}
+
               {/* Weather Card - Added to grid */}
               <div style={{
                 background:"linear-gradient(135deg, #0c4a6e 0%, #0369a1 50%, #0ea5e9 100%)",
@@ -497,18 +434,18 @@ export default function Dashboard(){
                   <p style={{color:"rgba(255,255,255,0.8)", fontSize:"14px"}}>Loading weather data...</p>
                 ) : (
                   <div>
-                    {/* Weather GIF and Temperature */}
+                    {/* Weather Emoji and Temperature */}
                     <div style={{display:"flex", alignItems:"center", marginBottom:"20px", background:"rgba(255,255,255,0.2)", borderRadius:"12px", padding:"15px", flexWrap:"wrap", gap:"10px"}}>
-                      <img 
-                        src={getWeatherGif(weather?.weather_code)} 
-                        alt="Weather" 
-                        style={{width:"clamp(50px, 15vw, 80px)", height:"clamp(50px, 15vw, 80px)", borderRadius:"50%", objectFit:"cover", border:"3px solid rgba(255,255,255,0.5)"}}
-                      />
+                      <div 
+                        style={{width:"clamp(50px, 15vw, 80px)", height:"clamp(50px, 15vw, 80px)", borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:"40px", background:"rgba(255,255,255,0.3)", border:"3px solid rgba(255,255,255,0.5)"}}
+                      >
+                        {getWeatherEmoji(weather?.weather_code)}
+                      </div>
                       <div>
                         <div style={{fontSize:"36px", fontWeight:"bold", lineHeight:"1"}}>
                           {weather?.temperature_2m}°C
                         </div>
-                        <div style={{fontSize:"12px", opacity: 0.9, marginTop:"5px"}}>📍 Mumbai Port Area</div>
+                        <div style={{fontSize:"12px", opacity: 0.9, marginTop:"5px"}}>📍 Marol, Andheri, Mumbai</div>
                       </div>
                     </div>
                     
@@ -604,25 +541,14 @@ export default function Dashboard(){
             </div>
           </div>
 
-          {/* Slide 2: Map Section */}
-          <div style={{
-            width:"100%",
-            height:"100%",
-            display: currentSlide === 1 ? "block" : "none"
-          }}>
-            <div style={{width:"100%", height:"100%"}}>
-              <VesselMap vessels={vesselArray} center={[CONFIG.latitude, CONFIG.longitude]} zoom={CONFIG.zoom}/>
-            </div>
-          </div>
-
-          {/* Slide 2: Vessel Photos */}
+          {/* Slide 3: Vessel Photos */}
           <div style={{
             width:"100%",
             height:"100%",
             overflow:"auto",
             background:"linear-gradient(135deg, #1a365d 0%, #2c5282 50%, #1a365d 100%)",
             padding:"20px",
-            display: currentSlide === 2 ? "block" : "none"
+            position: "absolute", top: 0, left: 0, opacity: currentSlide === 2 ? 1 : 0, transition: "opacity 0.8s ease-in-out", pointerEvents: currentSlide === 2 ? "auto" : "none", zIndex: currentSlide === 2 ? 1 : 0
           }}>
             <h2 style={{color:"white", marginBottom:"20px", borderBottom:"2px solid rgba(255,255,255,0.3)", paddingBottom:"10px", display:"flex", alignItems:"center", gap:"10px"}}>
               🚢 Vessel Photos

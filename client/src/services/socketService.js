@@ -1,6 +1,6 @@
 
 // WebSocket URL - can be overridden via environment variable
-const WS_URL = process.env.REACT_APP_WS_URL || "ws://localhost:5000";
+const WS_URL = process.env.REACT_APP_WS_URL || "ws://localhost:5001";
 
 // Lazy-initialized socket
 let socket = null;
@@ -36,7 +36,7 @@ function createSocket() {
   };
 
   socket.onopen = () => {
-    console.log("WebSocket connected");
+    console.log("WebSocket connected to", WS_URL);
     reconnectAttempts = 0; // Reset on successful connection
   };
 
@@ -53,13 +53,9 @@ export const listenAIS = (callback) => {
     try {
       const data = JSON.parse(event.data);
       
-      // Handle batch update (array of vessels)
-      if (Array.isArray(data)) {
-        data.forEach(vessel => callback(vessel));
-      } else {
-        // Handle individual vessel update (legacy format)
-        callback(data);
-      }
+      // Handle batch update (array of vessels) - pass entire array to callback
+      // Handle individual vessel update (legacy format) - pass single vessel
+      callback(data);
     } catch (err) {
       console.error("Failed to parse vessel data:", err);
     }
