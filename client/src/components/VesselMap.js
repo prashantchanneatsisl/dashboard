@@ -52,8 +52,14 @@ const getVesselHeading = (vessel) => {
   return vessel.cog || vessel.heading || vessel.course || 0;
 };
 
-export default function VesselMap({ vessels, center = DEFAULT_CENTER, zoom = DEFAULT_ZOOM, onVesselSelect }){
+export default function VesselMap({ vessels, center = DEFAULT_CENTER, zoom = DEFAULT_ZOOM, onVesselSelect, onMapReady }){
   const mapRef = useRef(null);
+  
+  const handleMapReady = () => {
+    if (mapRef.current && onMapReady) {
+      onMapReady(mapRef.current);
+    }
+  };
   
   // Ensure vessels is always an array
   const vesselArray = Array.isArray(vessels) ? vessels : [];
@@ -70,6 +76,7 @@ export default function VesselMap({ vessels, center = DEFAULT_CENTER, zoom = DEF
       center={center} 
       zoom={zoom} 
       style={{height:"100%", minHeight:"500px", border: "5px solid #000080", borderRadius: "8px"}}
+      whenReady={handleMapReady}
     >
       <TileLayer 
         url={BASE_TILE_LAYER}
@@ -114,9 +121,10 @@ export default function VesselMap({ vessels, center = DEFAULT_CENTER, zoom = DEF
      )
     })}
 
-    {vesselArray.map(v=>(
-     v.history && <Polyline key={v.mmsi+"track"} positions={v.history} color="#0000ff" weight={3} opacity={1}/>
-    ))}
+    {vesselArray.map(v=>{
+      const vesselStatus = getVesselStatus(v);
+      return v.history && vesselStatus === 'moving' && <Polyline key={v.mmsi+"track"} positions={v.history} color="#2196F3" weight={3} opacity={1}/>;
+    })}
 
    </MapContainer>
   )

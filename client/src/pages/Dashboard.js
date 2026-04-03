@@ -3,6 +3,7 @@ import React,{useEffect,useState,useRef} from "react";
 import {listenAIS} from "../services/socketService";
 import VesselMap from "../components/VesselMap";
 import VesselSidebar from "../components/VesselSidebar";
+import GridOverlay from "../components/GridOverlay";
 import { vesselImages } from "../config/vesselImages";
 
 // Configuration - can be overridden via environment variables
@@ -92,7 +93,12 @@ export default function Dashboard(){
   const [currentTime, setCurrentTime] = useState(new Date());
   const [selectedVessel, setSelectedVessel] = useState(null);
   const [showSidebar, setShowSidebar] = useState(false);
+  const [mapReady, setMapReady] = useState(null);
   const newsScrollRef = useRef(null);
+
+  const handleMapReady = (map) => {
+    setMapReady(map);
+  };
 
   useEffect(()=>{
     listenAIS(updateVessel);
@@ -346,7 +352,8 @@ export default function Dashboard(){
           }}>
             <div style={{width:"100%", height:"100%", display:"flex", position:"relative"}}>
               <div style={{flex: 1}}>
-                <VesselMap vessels={vesselArray} center={[CONFIG.latitude, CONFIG.longitude]} zoom={CONFIG.zoom} onVesselSelect={handleVesselSelect}/>
+                <VesselMap vessels={vesselArray} center={[CONFIG.latitude, CONFIG.longitude]} zoom={CONFIG.zoom} onVesselSelect={handleVesselSelect} onMapReady={handleMapReady}/>
+                <GridOverlay map={mapReady} vessels={vesselArray} />
               </div>
               {showSidebar && <VesselSidebar selectedVessel={selectedVessel} onClose={handleCloseSidebar} />}
               <button
