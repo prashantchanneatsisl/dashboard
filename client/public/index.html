@@ -18,6 +18,20 @@
   body {
     font-family: 'Inter', 'Roboto', 'Open Sans', sans-serif;
   }
+  /* Custom Vessel Tooltip Styling */
+  .leaflet-tooltip {
+    background: rgba(255, 255, 255, 0.95);
+    border: 2px solid #1a365d;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    padding: 8px 12px;
+  }
+  .leaflet-tooltip::before {
+    border-top-color: #1a365d;
+  }
+  .leaflet-tooltip-top:before {
+    border-top-color: #1a365d;
+  }
 </style>
 </head>
 <body>

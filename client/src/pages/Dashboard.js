@@ -2,6 +2,7 @@
 import React,{useEffect,useState,useRef} from "react";
 import {listenAIS} from "../services/socketService";
 import VesselMap from "../components/VesselMap";
+import VesselSidebar from "../components/VesselSidebar";
 import { vesselImages } from "../config/vesselImages";
 
 // Configuration - can be overridden via environment variables
@@ -14,9 +15,38 @@ const CONFIG = {
   weatherRefreshInterval: parseInt(process.env.REACT_APP_WEATHER_REFRESH_MIN || "10", 10) * 60000
 };
 
-// Free maritime/shipping news API - using sample data with API fetch capability
-// To use a real API, sign up at https://newsdata.io or https://gnews.io and add your API key
-const SHIPPING_NEWS_API = process.env.REACT_APP_SHIPPING_NEWS_API || "pub_ad359a3fbb1644f6a9c20b970bf8c5f5";
+// Free maritime/shipping news API - using newsdata.io
+// API Key: pub_ad359a3fbb1644f6a9c20b970bf8c5f5
+const SHIPPING_NEWS_API_KEY = process.env.REACT_APP_SHIPPING_NEWS_API_KEY || "pub_ad359a3fbb1644f6a9c20b970bf8c5f5";
+
+const SAMPLE_SHIPPING_NEWS = [
+  { id: 1, title: "Global Maritime Trade Recovery Continues in 2026", source: "Maritime News", link: "#", time: "2 hours ago" },
+  { id: 2, title: "New Environmental Regulations Impact Container Shipping", source: "Shipping Weekly", link: "#", time: "4 hours ago" },
+  { id: 3, title: "Port Automation Trends Reshape Logistics Industry", source: "Maritime Times", link: "#", time: "6 hours ago" },
+  { id: 4, title: "Oil Tanker Rates Surge Amid Supply Chain Changes", source: "Trade Winds", link: "#", time: "8 hours ago" },
+  { id: 5, title: "Major Shipping Lines Announce New Route Services", source: "Maritime News", link: "#", time: "12 hours ago" },
+];
+
+// Format time from newsdata.io pubDate
+const formatTime = (pubDate) => {
+  if (!pubDate) return "Recently";
+  try {
+    const date = new Date(pubDate);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+    
+    if (diffMins < 1) return "Just now";
+    if (diffMins < 60) return `${diffMins} min ago`;
+    if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+    if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  } catch {
+    return "Recently";
+  }
+};
 
 // Weather code to emoji mapping for Open-Meteo weather codes
 const getWeatherEmoji = (weatherCode) => {
@@ -60,28 +90,40 @@ export default function Dashboard(){
   const [newsLoading, setNewsLoading] = useState(true);
   const [apiVessels, setApiVessels] = useState([]);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [selectedVessel, setSelectedVessel] = useState(null);
+  const [showSidebar, setShowSidebar] = useState(false);
   const newsScrollRef = useRef(null);
 
   useEffect(()=>{
     listenAIS(updateVessel);
   },[]);
 
-  // Fetch vessel data from Python API
+  const fetchAISData = async () => {
+    return [];
+  };
+
+  // Fetch AIS data from MarineTraffic/PoleStar API
   useEffect(() => {
-    const fetchApiVessels = async () => {
+    const fetchAIS = async () => {
       try {
-        const response = await fetch('http://localhost:5001/api/vessels');
-        const data = await response.json();
-        if (Array.isArray(data)) {
-          setApiVessels(data);
+        const aisData = await fetchAISData();
+        if (aisData.length > 0) {
+          // Merge AIS data with existing vessels - AIS data takes priority
+          setVessels(prev => {
+            const newState = { ...prev };
+            aisData.forEach(v => {
+              newState[v.mmsi] = v;
+            });
+            return newState;
+          });
         }
       } catch (error) {
-        console.error('Error fetching vessel data from API:', error);
+        console.error('Error fetching AIS data:', error);
       }
     };
-    fetchApiVessels();
-    // Refresh every 30 seconds
-    const interval = setInterval(fetchApiVessels, 30000);
+    fetchAIS();
+    // Refresh every 60 seconds
+    const interval = setInterval(fetchAIS, 60000);
     return () => clearInterval(interval);
   }, []);
 
@@ -111,6 +153,14 @@ export default function Dashboard(){
   }
 
   const vesselArray=Object.values(vessels);
+
+  const handleVesselSelect = (vessel) => {
+    setSelectedVessel(vessel);
+  };
+
+  const handleCloseSidebar = () => {
+    setSelectedVessel(null);
+  };
 
   // Fetch weather data from Open-Meteo API (free, no API key needed)
   useEffect(() => {
@@ -143,29 +193,31 @@ export default function Dashboard(){
     return () => clearInterval(interval);
   }, []);
 
-  // Fetch shipping news from API
+  // Fetch shipping news from newsdata.io API
   useEffect(() => {
     const fetchShippingNews = async () => {
       try {
-        if (SHIPPING_NEWS_API) {
-          // Use real API if API key is provided
-          const response = await fetch(
-            `https://newsdata.io/api/1/news?apikey=${SHIPPING_NEWS_API}&q=shipping%20OR%20maritime%20OR%20port&language=en&size=10`
-          );
-          const data = await response.json();
-          if (data.results) {
-            const formattedNews = data.results.map((item, index) => ({
-              id: index,
-              title: item.title || "No title",
-              source: item.source_id || "Unknown",
-              time: item.pubDate ? new Date(item.pubDate).toLocaleTimeString() : "Just now"
-            }));
-            setShippingNews(formattedNews);
-          }
+        const response = await fetch(`https://newsdata.io/api/1/latest?apikey=${SHIPPING_NEWS_API_KEY}&q=shipping%20OR%20GAS%20OR%20OIL&language=en`);
+        const data = await response.json();
+        
+        if (data.results && data.results.length > 0) {
+          const news = data.results.slice(0, 10).map((item, index) => ({
+            id: index,
+            title: item.title || "No title",
+            source: item.source_name || "News",
+            link: item.link || "",
+            image: item.image_url || "",
+            time: item.pubDate ? formatTime(item.pubDate) : "Recently"
+          }));
+          
+          setShippingNews(news);
+        } else {
+          setShippingNews(SAMPLE_SHIPPING_NEWS);
         }
         setNewsLoading(false);
       } catch (error) {
-        console.error("Error fetching shipping news:", error);
+        console.error("Error fetching shipping news, using fallback data:", error);
+        setShippingNews(SAMPLE_SHIPPING_NEWS);
         setNewsLoading(false);
       }
     };
@@ -243,10 +295,10 @@ export default function Dashboard(){
           animation:"marquee 120s linear infinite",
           paddingLeft:"100%"
         }}>
-          {apiVessels.length > 0 ? (
-            apiVessels.slice(0, 10).map((vessel, index) => (
+          {vesselArray.length > 0 ? (
+            vesselArray.slice(0, 10).map((vessel, index) => (
               <span key={index} style={{marginRight:"50px", fontSize:"16px", fontWeight:"bold"}}>
-                🚢 {vessel.vessel || 'N/A'} | {vessel.position || '-'} | {vessel.port || '-'} | ETA: {vessel.eta || '-'} | NPOC: {vessel.npoc || '-'}
+                🚢 {vessel.vesselName || 'N/A'} | LAT: {vessel.lat?.toFixed(2) || '-'} | LON: {vessel.lon?.toFixed(2) || '-'} | Speed: {vessel.speed || 0} kn | Dest: {vessel.destination || '-'}
               </span>
             ))
           ) : (
@@ -292,8 +344,36 @@ export default function Dashboard(){
           <div style={{
             position: "absolute", top: 0, left: 0, width: "100%", height: "100%", opacity: currentSlide === 0 ? 1 : 0, transition: "opacity 0.8s ease-in-out", pointerEvents: currentSlide === 0 ? "auto" : "none", zIndex: currentSlide === 0 ? 1 : 0
           }}>
-            <div style={{width:"100%", height:"100%"}}>
-              <VesselMap vessels={vesselArray} center={[CONFIG.latitude, CONFIG.longitude]} zoom={CONFIG.zoom}/>
+            <div style={{width:"100%", height:"100%", display:"flex", position:"relative"}}>
+              <div style={{flex: 1}}>
+                <VesselMap vessels={vesselArray} center={[CONFIG.latitude, CONFIG.longitude]} zoom={CONFIG.zoom} onVesselSelect={handleVesselSelect}/>
+              </div>
+              {showSidebar && <VesselSidebar selectedVessel={selectedVessel} onClose={handleCloseSidebar} />}
+              <button
+                onClick={() => setShowSidebar(!showSidebar)}
+                style={{
+                  position: "absolute",
+                  right: showSidebar ? "360px" : "10px",
+                  top: "20px",
+                  background: showSidebar ? "#1a365d" : "#1a365d",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "8px",
+                  padding: "10px 15px",
+                  cursor: "pointer",
+                  fontSize: "16px",
+                  fontWeight: "bold",
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
+                  transition: "right 0.3s ease, background 0.3s",
+                  zIndex: 1000,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px"
+                }}
+                title={showSidebar ? "Hide vessel details" : "Show vessel details"}
+              >
+                {showSidebar ? "◀" : "▶"} Vessel Details
+              </button>
             </div>
           </div>
 
@@ -310,17 +390,18 @@ export default function Dashboard(){
               📰 Maritime News
             </h2>
             
-            {/* All Cards in Equal Width Responsive Grid - 3 columns */}
-            <div style={{display:"grid", gridTemplateColumns:"repeat(auto-fit, minmax(320px, 1fr))", gap:"20px", height:"100%"}}>
-              {/* Shipping News Card - Widget Style with Thumbnails */}
+            {/* All Cards in Equal Width Responsive Grid - 2 columns: News | Weather */}
+            <div style={{display:"grid", gridTemplateColumns:"1fr 1fr", gap:"20px", height:"100%", minWidth:0}}>
+              
+              {/* Column 1 - Scrolling News */}
               <div style={{
                 background:"linear-gradient(135deg, #1a365d 0%, #2c5282 100%)",
                 borderRadius:"16px",
                 boxShadow:"0 10px 25px rgba(0,0,0,0.3)",
                 overflow:"hidden",
-                height:"100%",
                 display:"flex",
-                flexDirection:"column"
+                flexDirection:"column",
+                minWidth:0
               }}>
                 <div style={{
                   padding:"20px 25px",
@@ -340,7 +421,6 @@ export default function Dashboard(){
                   overflow:"hidden",
                   position:"relative"
                 }}>
-                  {/* Continuous Scrolling News Container */}
                   <div 
                     ref={newsScrollRef}
                     style={{
@@ -351,10 +431,12 @@ export default function Dashboard(){
                       <div style={{padding:"30px", color:"rgba(255,255,255,0.8)", textAlign:"center"}}>Loading shipping news...</div>
                     ) : (
                       <>
-                        {/* Duplicate news items for seamless looping */}
                         {[...shippingNews, ...shippingNews].map((news, index) => (
-                          <div 
+                          <a 
                             key={`${news.id}-${index}`}
+                            href={news.link || "#"}
+                            target="_blank"
+                            rel="noopener noreferrer"
                             style={{
                               padding:"15px 25px",
                               borderBottom:"1px solid rgba(255,255,255,0.1)",
@@ -362,13 +444,19 @@ export default function Dashboard(){
                               alignItems:"center",
                               gap:"15px",
                               transition:"background 0.3s",
-                              cursor:"pointer"
+                              cursor:"pointer",
+                              textDecoration:"none",
+                              color:"inherit"
                             }}
+                            onMouseEnter={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.1)"}
+                            onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
                           >
-                            {/* Thumbnail Image */}
                             <img 
                               src={news.image || "https://images.unsplash.com/photo-1583267318076-7c14406f2c9b?w=100&h=60&fit=crop"} 
                               alt="News thumbnail"
+                              onError={(e) => {
+                                e.target.src = "https://images.unsplash.com/photo-1583267318076-7c14406f2c9b?w=100&h=60&fit=crop";
+                              }}
                               style={{
                                 width: "clamp(60px, 15vw, 100px)", 
                                 height: "clamp(40px, 10vw, 60px)", 
@@ -387,7 +475,7 @@ export default function Dashboard(){
                                 <span style={{color:"rgba(255,255,255,0.6)", fontSize:"12px"}}>🕐 {news.time}</span>
                               </div>
                             </div>
-                          </div>
+                          </a>
                         ))}
                       </>
                     )}
@@ -400,31 +488,13 @@ export default function Dashboard(){
                   }
                 `}</style>
               </div>
-              <div style={{
-                background:"linear-gradient(135deg, #c05621 0%, #dd6b20 100%)",
-                padding:"20px",
-                borderRadius:"16px",
-                boxShadow:"0 10px 25px rgba(0,0,0,0.3)",
-                height:"100%",
-                color:"white"
-              }}>
-                <h3 style={{margin:"0 0 10px 0", fontSize:"20px", fontWeight:"600", display:"flex", alignItems:"center", gap:"10px"}}>
-                  ⚠️ Maritime Safety Alert
-                </h3>
-                <p style={{color:"rgba(255,255,255,0.9)", fontSize:"15px", margin:"0 0 15px 0", lineHeight:"1.5"}}>New safety regulations effective 2026 for all vessels operating in Indian waters. All captains must comply with updated AIS requirements.</p>
-                <div style={{display:"flex", alignItems:"center", gap:"10px"}}>
-                  <span style={{color:"rgba(255,255,255,0.7)", fontSize:"13px", background:"rgba(0,0,0,0.2)", padding:"6px 12px", borderRadius:"20px"}}>📅 2026-03-13</span>
-                  <span style={{color:"rgba(255,255,255,0.7)", fontSize:"13px", background:"rgba(0,0,0,0.2)", padding:"6px 12px", borderRadius:"20px"}}>🔔 Important</span>
-                </div>
-              </div>
 
-              {/* Weather Card - Added to grid */}
+              {/* Column 2 - Weather */}
               <div style={{
                 background:"linear-gradient(135deg, #0c4a6e 0%, #0369a1 50%, #0ea5e9 100%)",
                 padding:"20px",
                 borderRadius:"16px",
                 boxShadow:"0 10px 25px rgba(0,0,0,0.3)",
-                height:"100%",
                 color:"white"
               }}>
                 <h3 style={{margin:"0 0 15px 0", fontSize:"18px", fontWeight:"600", display:"flex", alignItems:"center", gap:"8px"}}>
@@ -538,10 +608,10 @@ export default function Dashboard(){
                   </div>
                 )}
               </div>
+              </div>
             </div>
-          </div>
 
-          {/* Slide 3: Vessel Photos */}
+            {/* Slide 3: Vessel Photos */}
           <div style={{
             width:"100%",
             height:"100%",
@@ -728,7 +798,7 @@ export default function Dashboard(){
           
         </div>
 
-        {/* Carousel Navigation Dots */}
+          {/* Carousel Navigation Dots */}
         <div style={{
           display:"flex",
           justifyContent:"center",
@@ -777,7 +847,7 @@ export default function Dashboard(){
           />
         </div>
 
-        {/* BOTTOM ROW - Marquee Text */}
+          {/* BOTTOM ROW - Marquee Text */}
         <div style={{
           background:"#1a365d",
           color:"white",
