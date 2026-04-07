@@ -133,7 +133,23 @@ export default function Dashboard(){
     return () => clearInterval(interval);
   }, []);
 
-  // Update current time every second for world clock
+  // Fetch vessels from Flask API
+  useEffect(() => {
+    const fetchVessels = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/api/vessels/marquee");
+        const data = await response.json();
+        setApiVessels(data);
+      } catch (error) {
+        console.error("Error fetching vessels from API:", error);
+      }
+    };
+
+    fetchVessels();
+    // Refresh every 30 seconds
+    const interval = setInterval(fetchVessels, 30000);
+    return () => clearInterval(interval);
+  }, []);
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
@@ -183,6 +199,9 @@ export default function Dashboard(){
         
         const weatherData = await weatherRes.json();
         const airData = await airRes.json();
+        
+        console.log("Weather API Response:", weatherData);
+        console.log("Air Quality API Response:", airData);
         
         setWeather(weatherData.current);
         setAirQuality(airData.current);
@@ -288,7 +307,8 @@ export default function Dashboard(){
   return(
     <div style={{display:"flex", flexDirection:"column", height:"100vh", overflow:"hidden"}}>
       
-      {/* TOP ROW - Marquee Text with API Vessel Data */}
+      {/* TOP ROW - Marquee Text with API Vessel Data from Flask */}
+      {/* OLD MARQUEE CODE:
       <div style={{
         background:"#1a365d",
         color:"white",
@@ -317,6 +337,48 @@ export default function Dashboard(){
               </span>
               <span style={{marginRight:"50px", fontSize:"16px", fontWeight:"bold"}}>
                 ⚓ TOTAL VESSELS TRACKED: {vesselArray.length} | STAY SAFE AT SEA
+              </span>
+            </>
+          )}
+        </div>
+        <style>{`
+          @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-100%); }
+          }
+        `}</style>
+      </div>
+      END OLD MARQUEE */}
+
+      {/* NEW MARQUEE - Reading from Flask API /api/vessels/marquee */}
+      <div style={{
+        background:"#1a365d",
+        color:"white",
+        padding:"10px 0",
+        overflow:"hidden",
+        whiteSpace:"nowrap"
+      }}>
+        <div style={{
+          display:"inline-block",
+          animation:"marquee 248s linear infinite",
+          paddingLeft:"100%"
+        }}>
+          {apiVessels.length > 0 ? (
+            apiVessels.map((vessel, index) => (
+              <span key={index} style={{marginRight:"50px", fontSize:"16px", fontWeight:"bold"}}>
+                🚢 {vessel.vessel} | Position: {vessel.position} | Port: {vessel.port} | ETA: {vessel.eta} | ETB: {vessel.etb} | ETD: {vessel.etd} | NPOC: {vessel.npoc}
+              </span>
+            ))
+          ) : (
+            <>
+              <span style={{marginRight:"50px", fontSize:"16px", fontWeight:"bold"}}>
+                🚢 MARITIME AIS DASHBOARD - VESSEL TRACKING SYSTEM 
+              </span>
+              <span style={{marginRight:"50px", fontSize:"16px", fontWeight:"bold"}}>
+                📡 LIVE SHIP POSITIONS | PORT STATUS | WEATHER UPDATES 
+              </span>
+              <span style={{marginRight:"50px", fontSize:"16px", fontWeight:"bold"}}>
+                ⚓ LOADING VESSEL DATA FROM EXCEL | STAY SAFE AT SEA
               </span>
             </>
           )}
