@@ -1,6 +1,25 @@
 
-// WebSocket URL - can be overridden via environment variable
-const WS_URL = process.env.REACT_APP_WS_URL || "ws://localhost:5001";
+// WebSocket URL - dynamically determined based on current page location
+// Falls back to localhost:5001 for local development
+function getWebSocketURL() {
+  const wsPort = process.env.REACT_APP_WS_PORT || "5001";
+  
+  // Check if explicit WS_URL is set
+  if (process.env.REACT_APP_WS_URL) {
+    return process.env.REACT_APP_WS_URL;
+  }
+  
+  // Use current page's hostname and determine WebSocket port
+  const hostname = window.location.hostname;
+  const isHTTPS = window.location.protocol === 'https:';
+  const protocol = isHTTPS ? 'wss://' : 'ws://';
+  
+  // Try to use same port for WebSocket (common in dev), otherwise use default
+  const currentPort = window.location.port;
+  const wsPortFinal = currentPort ? currentPort : wsPort;
+  
+  return `${protocol}${hostname}:${wsPortFinal}`;
+}
 
 // Lazy-initialized socket
 let socket = null;
@@ -14,6 +33,7 @@ function createSocket() {
     return socket;
   }
 
+  const WS_URL = getWebSocketURL();
   socket = new WebSocket(WS_URL);
 
   socket.onerror = (error) => {
@@ -36,7 +56,7 @@ function createSocket() {
   };
 
   socket.onopen = () => {
-    console.log("WebSocket connected to", WS_URL);
+    console.log("WebSocket connected to", getWebSocketURL());
     reconnectAttempts = 0; // Reset on successful connection
   };
 
