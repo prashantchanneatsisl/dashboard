@@ -14,9 +14,9 @@ function getWebSocketURL() {
   const isHTTPS = window.location.protocol === 'https:';
   const protocol = isHTTPS ? 'wss://' : 'ws://';
   
-  // Try to use same port for WebSocket (common in dev), otherwise use default
-  const currentPort = window.location.port;
-  const wsPortFinal = currentPort ? currentPort : wsPort;
+  // Use default WebSocket port (5001) unless explicitly overridden
+  // React typically runs on 3000, but WebSocket is on 5001
+  const wsPortFinal = wsPort;
   
   return `${protocol}${hostname}:${wsPortFinal}`;
 }

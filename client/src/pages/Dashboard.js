@@ -137,7 +137,7 @@ export default function Dashboard(){
   useEffect(() => {
     const fetchVessels = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/vessels/marquee");
+        const response = await fetch("/api/vessels/marquee");
         const data = await response.json();
         setApiVessels(data);
       } catch (error) {
@@ -250,11 +250,11 @@ export default function Dashboard(){
     fetchShippingNews();
   }, []);
 
-  // Auto-advance carousel every 5 minutes
+  // Auto-advance carousel every 45 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentSlide(prev => (prev === 2 ? 0 : prev + 1));
-    }, 300000); // 5 minutes = 300000ms
+    }, 45000); // 45 seconds = 45000ms
     return () => clearInterval(interval);
   }, []);
 

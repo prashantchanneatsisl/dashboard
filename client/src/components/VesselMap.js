@@ -27,11 +27,12 @@ const createVesselIcon = (status, heading = 0) => {
     </svg>
   `;
   
-  return new L.DivIcon({
+  return L.divIcon({
     html: svgIcon,
     className: 'vessel-marker',
     iconSize: [40, 40],
-    iconAnchor: [20, 20]
+    iconAnchor: [20, 20],
+    popupAnchor: [0, -20]
   });
 };
 
@@ -92,7 +93,7 @@ export default function VesselMap({ vessels, center = DEFAULT_CENTER, zoom = DEF
       </Popup>
     )}
 
-    {vesselArray.map(v=>{
+    {vesselArray.filter(v => v && typeof v.lat === 'number' && typeof v.lon === 'number').map((v, idx)=>{
       const pos=[v.lat,v.lon]
       const vesselStatus = getVesselStatus(v);
       const vesselHeading = getVesselHeading(v);
@@ -102,7 +103,7 @@ export default function VesselMap({ vessels, center = DEFAULT_CENTER, zoom = DEF
         img.vessel.toLowerCase() === v.vesselName?.toLowerCase()
       );
       return(
-  <Marker key={v.mmsi} position={pos} icon={dynamicIcon} eventHandlers={{ click: () => handleMarkerClick(v) }}>
+  <Marker key={v.mmsi || v.vesselName || idx} position={pos} icon={dynamicIcon} eventHandlers={{ click: () => handleMarkerClick(v) }}>
         <Popup>
          {vesselImage && <img src={vesselImage.src} alt={v.vesselName} style={{width: '150px', height: '100px', objectFit: 'cover', borderRadius: '4px', marginBottom: '8px'}} />}
          <b>{v.vesselName}</b><br/>
