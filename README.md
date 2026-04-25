@@ -13,7 +13,7 @@ Features
 ## Requirements
 Node.js 18+
 
-## Run Server
+## Run Node.js WebSocket Server
 
 cd server
 npm install
@@ -21,6 +21,15 @@ node server.js
 
 Server runs at:
 ws://localhost:5000
+
+## Run Python Flask Server (for vessel data and news feeds)
+
+cd pyserver
+pip install -r requirements.txt
+python app.py
+
+Server runs at:
+http://localhost:5000
 
 ## Run React Client
 

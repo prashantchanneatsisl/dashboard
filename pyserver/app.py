@@ -1,13 +1,31 @@
 import os
-from flask import Flask, jsonify
-from flask_cors import CORS
-import pandas as pd
-import feedparser
-import requests
 import re
 
+import feedparser
+from flask import Flask, jsonify, request
+from flask_cors import CORS
+import pandas as pd
+import requests
+
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True)
+
+@app.after_request
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+    return response
+
+# Also handle OPTIONS requests for CORS preflight
+@app.before_request
+def handle_options():
+    if request.method == 'OPTIONS':
+        resp = app.make_default_options_response()
+        resp.headers['Access-Control-Allow-Origin'] = '*'
+        resp.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
+        resp.headers['Access-Control-Allow-Methods'] = 'GET,PUT,POST,DELETE,OPTIONS'
+        return resp
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 EXCEL_FILE = os.path.join(BASE_DIR, "vessel_data.xlsx")
@@ -35,6 +53,7 @@ def vessels():
             "npoc": str(row["NPOC"])
         })
 
+    print("Data returned by /api/vessels:", vessels)
     return jsonify(vessels)
 
 
@@ -56,6 +75,7 @@ def vessels_marquee():
             "npoc": str(row["NPOC"])
         })
 
+    print("Data returned by /api/vessels/marquee:", vessels)
     return jsonify(vessels)
 
 

@@ -137,7 +137,7 @@ export default function Dashboard(){
   useEffect(() => {
     const fetchVessels = async () => {
       try {
-        const response = await fetch("/api/vessels/marquee");
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/vessels/marquee`);
         const data = await response.json();
         setApiVessels(data);
       } catch (error) {
@@ -308,47 +308,7 @@ export default function Dashboard(){
     <div style={{display:"flex", flexDirection:"column", height:"100vh", overflow:"hidden"}}>
       
       {/* TOP ROW - Marquee Text with API Vessel Data from Flask */}
-      {/* OLD MARQUEE CODE:
-      <div style={{
-        background:"#1a365d",
-        color:"white",
-        padding:"10px 0",
-        overflow:"hidden",
-        whiteSpace:"nowrap"
-      }}>
-        <div style={{
-          display:"inline-block",
-          animation:"marquee 120s linear infinite",
-          paddingLeft:"100%"
-        }}>
-          {vesselArray.length > 0 ? (
-            vesselArray.slice(0, 10).map((vessel, index) => (
-              <span key={index} style={{marginRight:"50px", fontSize:"16px", fontWeight:"bold"}}>
-                🚢 {vessel.vesselName || 'N/A'} | LAT: {vessel.lat?.toFixed(2) || '-'} | LON: {vessel.lon?.toFixed(2) || '-'} | Speed: {vessel.speed || 0} kn | Dest: {vessel.destination || '-'}
-              </span>
-            ))
-          ) : (
-            <>
-              <span style={{marginRight:"50px", fontSize:"16px", fontWeight:"bold"}}>
-                🚢 MARITIME AIS DASHBOARD - VESSEL TRACKING SYSTEM 
-              </span>
-              <span style={{marginRight:"50px", fontSize:"16px", fontWeight:"bold"}}>
-                📡 LIVE SHIP POSITIONS | PORT STATUS | WEATHER UPDATES 
-              </span>
-              <span style={{marginRight:"50px", fontSize:"16px", fontWeight:"bold"}}>
-                ⚓ TOTAL VESSELS TRACKED: {vesselArray.length} | STAY SAFE AT SEA
-              </span>
-            </>
-          )}
-        </div>
-        <style>{`
-          @keyframes marquee {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-100%); }
-          }
-        `}</style>
-      </div>
-      END OLD MARQUEE */}
+      
 
       {/* NEW MARQUEE - Reading from Flask API /api/vessels/marquee */}
       <div style={{
@@ -363,8 +323,8 @@ export default function Dashboard(){
           animation:"marquee 248s linear infinite",
           paddingLeft:"100%"
         }}>
-          {apiVessels.length > 0 ? (
-            apiVessels.map((vessel, index) => (
+        {apiVessels.length > 0 ? (
+          apiVessels.map((vessel, index) => (
               <span key={index} style={{marginRight:"50px", fontSize:"16px", fontWeight:"bold"}}>
                 🚢 {vessel.vessel} | Position: {vessel.position} | Port: {vessel.port} | ETA: {vessel.eta} | ETB: {vessel.etb} | ETD: {vessel.etd} | NPOC: {vessel.npoc}
               </span>
@@ -639,8 +599,8 @@ export default function Dashboard(){
                         {/* Mumbai */}
                         <div style={{textAlign:"center"}}>
                           <div style={{width:"36px", height:"36px", borderRadius:"50%", border:"2px solid rgba(255,255,255,0.5)", margin:"0 auto 5px", position:"relative", background:"rgba(255,255,255,0.1)"}}>
-                            <div style={{position:"absolute", top:"50%", left:"50%", width:"2px", height:"12px", background:"white", transformOrigin:"bottom center", transform:"translate(-50%, -100%) rotate(" + ((currentTime.getHours() + 5.5) % 24 * 30 + currentTime.getMinutes() * 0.5) + "deg)"}}></div>
-                            <div style={{position:"absolute", top:"50%", left:"50%", width:"1px", height:"14px", background:"#fbbf24", transformOrigin:"bottom center", transform:"translate(-50%, -100%) rotate(" + (currentTime.getMinutes() * 6 + currentTime.getSeconds() * 0.1) + "deg)"}}></div>
+                            <div style={{position:"absolute", top:"50%", left:"50%", width:"2px", height:"12px", background:"white", transformOrigin:"bottom center", transform:`translate(-50%, -100%) rotate(${((currentTime.getHours() + 5.5) % 24 * 30 + currentTime.getMinutes() * 0.5)}deg)`}}></div>
+                            <div style={{position:"absolute", top:"50%", left:"50%", width:"1px", height:"14px", background:"#fbbf24", transformOrigin:"bottom center", transform:`translate(-50%, -100%) rotate(${(currentTime.getMinutes() * 6 + currentTime.getSeconds() * 0.1)}deg)`}}></div>
                           </div>
                           <div style={{fontSize:"10px", opacity: 0.8}}>Mumbai</div>
                           <div style={{fontSize:"11px", fontWeight:"bold"}}>{new Date(currentTime.getTime()).toLocaleTimeString('en-US', {timeZone: 'Asia/Kolkata', hour: '2-digit', minute:'2-digit', hour12: false})}</div>
@@ -648,8 +608,8 @@ export default function Dashboard(){
                         {/* London (UK) */}
                         <div style={{textAlign:"center"}}>
                           <div style={{width:"36px", height:"36px", borderRadius:"50%", border:"2px solid rgba(255,255,255,0.5)", margin:"0 auto 5px", position:"relative", background:"rgba(255,255,255,0.1)"}}>
-                            <div style={{position:"absolute", top:"50%", left:"50%", width:"2px", height:"12px", background:"white", transformOrigin:"bottom center", transform:"translate(-50%, -100%) rotate(" + ((currentTime.getUTCHours() + 0) % 24 * 30 + currentTime.getUTCMinutes() * 0.5) + "deg)"}}></div>
-                            <div style={{position:"absolute", top:"50%", left:"50%", width:"1px", height:"14px", background:"#fbbf24", transformOrigin:"bottom center", transform:"translate(-50%, -100%) rotate(" + (currentTime.getUTCMinutes() * 6 + currentTime.getUTCSeconds() * 0.1) + "deg)"}}></div>
+                            <div style={{position:"absolute", top:"50%", left:"50%", width:"2px", height:"12px", background:"white", transformOrigin:"bottom center", transform:`translate(-50%, -100%) rotate(${((currentTime.getUTCHours() + 0) % 24 * 30 + currentTime.getUTCMinutes() * 0.5)}deg)`}}></div>
+                            <div style={{position:"absolute", top:"50%", left:"50%", width:"1px", height:"14px", background:"#fbbf24", transformOrigin:"bottom center", transform:`translate(-50%, -100%) rotate(${(currentTime.getUTCMinutes() * 6 + currentTime.getUTCSeconds() * 0.1)}deg)`}}></div>
                           </div>
                           <div style={{fontSize:"10px", opacity: 0.8}}>London</div>
                           <div style={{fontSize:"11px", fontWeight:"bold"}}>{new Date(currentTime.getTime()).toLocaleTimeString('en-US', {timeZone: 'Europe/London', hour: '2-digit', minute:'2-digit', hour12: false})}</div>
@@ -657,8 +617,8 @@ export default function Dashboard(){
                         {/* New York (USA) */}
                         <div style={{textAlign:"center"}}>
                           <div style={{width:"36px", height:"36px", borderRadius:"50%", border:"2px solid rgba(255,255,255,0.5)", margin:"0 auto 5px", position:"relative", background:"rgba(255,255,255,0.1)"}}>
-                            <div style={{position:"absolute", top:"50%", left:"50%", width:"2px", height:"12px", background:"white", transformOrigin:"bottom center", transform:"translate(-50%, -100%) rotate(" + ((currentTime.getUTCHours() - 5 + 24) % 24 * 30 + currentTime.getUTCMinutes() * 0.5) + "deg)"}}></div>
-                            <div style={{position:"absolute", top:"50%", left:"50%", width:"1px", height:"14px", background:"#fbbf24", transformOrigin:"bottom center", transform:"translate(-50%, -100%) rotate(" + (currentTime.getUTCMinutes() * 6 + currentTime.getUTCSeconds() * 0.1) + "deg)"}}></div>
+                            <div style={{position:"absolute", top:"50%", left:"50%", width:"2px", height:"12px", background:"white", transformOrigin:"bottom center", transform:`translate(-50%, -100%) rotate(${((currentTime.getUTCHours() - 5 + 24) % 24 * 30 + currentTime.getUTCMinutes() * 0.5)}deg)`}}></div>
+                            <div style={{position:"absolute", top:"50%", left:"50%", width:"1px", height:"14px", background:"#fbbf24", transformOrigin:"bottom center", transform:`translate(-50%, -100%) rotate(${(currentTime.getUTCMinutes() * 6 + currentTime.getUTCSeconds() * 0.1)}deg)`}}></div>
                           </div>
                           <div style={{fontSize:"10px", opacity: 0.8}}>New York</div>
                           <div style={{fontSize:"11px", fontWeight:"bold"}}>{new Date(currentTime.getTime()).toLocaleTimeString('en-US', {timeZone: 'America/New_York', hour: '2-digit', minute:'2-digit', hour12: false})}</div>
@@ -666,8 +626,8 @@ export default function Dashboard(){
                         {/* Tokyo */}
                         <div style={{textAlign:"center"}}>
                           <div style={{width:"36px", height:"36px", borderRadius:"50%", border:"2px solid rgba(255,255,255,0.5)", margin:"0 auto 5px", position:"relative", background:"rgba(255,255,255,0.1)"}}>
-                            <div style={{position:"absolute", top:"50%", left:"50%", width:"2px", height:"12px", background:"white", transformOrigin:"bottom center", transform:"translate(-50%, -100%) rotate(" + ((currentTime.getUTCHours() + 9) % 24 * 30 + currentTime.getUTCMinutes() * 0.5) + "deg)"}}></div>
-                            <div style={{position:"absolute", top:"50%", left:"50%", width:"1px", height:"14px", background:"#fbbf24", transformOrigin:"bottom center", transform:"translate(-50%, -100%) rotate(" + (currentTime.getUTCMinutes() * 6 + currentTime.getUTCSeconds() * 0.1) + "deg)"}}></div>
+                            <div style={{position:"absolute", top:"50%", left:"50%", width:"2px", height:"12px", background:"white", transformOrigin:"bottom center", transform:`translate(-50%, -100%) rotate(${((currentTime.getUTCHours() + 9) % 24 * 30 + currentTime.getUTCMinutes() * 0.5)}deg)`}}></div>
+                            <div style={{position:"absolute", top:"50%", left:"50%", width:"1px", height:"14px", background:"#fbbf24", transformOrigin:"bottom center", transform:`translate(-50%, -100%) rotate(${(currentTime.getUTCMinutes() * 6 + currentTime.getUTCSeconds() * 0.1)}deg)`}}></div>
                           </div>
                           <div style={{fontSize:"10px", opacity: 0.8}}>Tokyo</div>
                           <div style={{fontSize:"11px", fontWeight:"bold"}}>{new Date(currentTime.getTime()).toLocaleTimeString('en-US', {timeZone: 'Asia/Tokyo', hour: '2-digit', minute:'2-digit', hour12: false})}</div>
