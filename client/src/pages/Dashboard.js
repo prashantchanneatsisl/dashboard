@@ -13,7 +13,15 @@ const CONFIG = {
   longitude: parseFloat(process.env.REACT_APP_DEFAULT_LON || "72.8697"),
   zoom: parseInt(process.env.REACT_APP_DEFAULT_ZOOM || "6", 10),
   // Weather refresh interval in milliseconds (default 10 minutes)
-  weatherRefreshInterval: parseInt(process.env.REACT_APP_WEATHER_REFRESH_MIN || "10", 10) * 60000
+  weatherRefreshInterval: parseInt(process.env.REACT_APP_WEATHER_REFRESH_MIN || "10", 10) * 60000,
+  // Marquee top speed control (milliseconds, default 248000 = 248s)
+  marqueeTopDuration: parseInt(process.env.REACT_APP_MARQUEE_TOP_SPEED || "248000", 10),
+  // Marquee bottom speed control (milliseconds, default 25000 = 25s)
+  marqueeBottomDuration: parseInt(process.env.REACT_APP_MARQUEE_BOTTOM_SPEED || "25000", 10),
+  // Carousel slide transition timer (milliseconds, default 45000 = 45s)
+  carouselSlideInterval: parseInt(process.env.REACT_APP_CAROUSEL_SLIDE_INTERVAL || "45000", 10),
+  // Photo carousel interval (milliseconds, default 4000 = 4s)
+  photoCarouselInterval: parseInt(process.env.REACT_APP_PHOTO_CAROUSEL_INTERVAL || "4000", 10)
 };
 
 // Free maritime/shipping news API - using newsdata.io
@@ -250,11 +258,11 @@ export default function Dashboard(){
     fetchShippingNews();
   }, []);
 
-  // Auto-advance carousel every 45 seconds
+  // Auto-advance carousel every configurable interval
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentSlide(prev => (prev === 2 ? 0 : prev + 1));
-    }, 45000); // 45 seconds = 45000ms
+    }, CONFIG.carouselSlideInterval);
     return () => clearInterval(interval);
   }, []);
 
@@ -269,15 +277,15 @@ export default function Dashboard(){
     const shuffled = [...vesselImagesList].sort(() => Math.random() - 0.5);
     setRandomPhotoOrder(shuffled);
     
-    // Auto-advance photo carousel every 4 seconds for random slideshow feel
-    const photoInterval = setInterval(() => {
-      setCurrentPhotoSlide(prev => {
-        const totalPhotos = shuffled.length;
-        // Random jump to create unpredictable feel
-        const randomJump = Math.floor(Math.random() * 3) + 1;
-        return (prev + randomJump) % totalPhotos;
-      });
-    }, 4000);
+      // Auto-advance photo carousel every configurable interval for random slideshow feel
+      const photoInterval = setInterval(() => {
+        setCurrentPhotoSlide(prev => {
+          const totalPhotos = shuffled.length;
+          // Random jump to create unpredictable feel
+          const randomJump = Math.floor(Math.random() * 3) + 1;
+          return (prev + randomJump) % totalPhotos;
+        });
+      }, CONFIG.photoCarouselInterval);
     
     return () => clearInterval(photoInterval);
   }, []);
@@ -320,7 +328,7 @@ export default function Dashboard(){
       }}>
         <div style={{
           display:"inline-block",
-          animation:"marquee 248s linear infinite",
+          animation:`marquee ${CONFIG.marqueeTopDuration / 1000}s linear infinite`,
           paddingLeft:"100%"
         }}>
         {apiVessels.length > 0 ? (
@@ -884,11 +892,11 @@ export default function Dashboard(){
           overflow:"hidden",
           whiteSpace:"nowrap"
         }}>
-          <div style={{
-            display:"inline-block",
-            animation:"marquee 25s linear infinite",
-            paddingLeft:"100%"
-          }}>
+        <div style={{
+          display:"inline-block",
+          animation:`marquee ${CONFIG.marqueeBottomDuration / 1000}s linear infinite`,
+          paddingLeft:"100%"
+        }}>
             <span style={{marginRight:"50px", fontSize:"14px"}}>
               ⚓ STAY CONNECTED WITH MARITIME AIS DASHBOARD | 🌊 MONITORING VESSELS IN REAL-TIME | 📍 ALL RIGHTS RESERVED 2026
             </span>
