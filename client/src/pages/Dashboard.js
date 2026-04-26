@@ -603,44 +603,53 @@ export default function Dashboard(){
                     {/* World Clock Analog */}
                     <div style={{marginTop:"15px", background:"rgba(255,255,255,0.15)", borderRadius:"10px", padding:"12px", border:"1px solid rgba(255,255,255,0.1)"}}>
                       <div style={{fontSize:"12px", fontWeight:"600", marginBottom:"10px", textAlign:"center"}}>🌐 World Clock</div>
-                      <div style={{display:"grid", gridTemplateColumns:"1fr 1fr 1fr 1fr", gap:"8px"}}>
-                        {/* Mumbai */}
-                        <div style={{textAlign:"center"}}>
-                          <div style={{width:"36px", height:"36px", borderRadius:"50%", border:"2px solid rgba(255,255,255,0.5)", margin:"0 auto 5px", position:"relative", background:"rgba(255,255,255,0.1)"}}>
-                            <div style={{position:"absolute", top:"50%", left:"50%", width:"2px", height:"12px", background:"white", transformOrigin:"bottom center", transform:`translate(-50%, -100%) rotate(${((currentTime.getHours() + 5.5) % 24 * 30 + currentTime.getMinutes() * 0.5)}deg)`}}></div>
-                            <div style={{position:"absolute", top:"50%", left:"50%", width:"1px", height:"14px", background:"#fbbf24", transformOrigin:"bottom center", transform:`translate(-50%, -100%) rotate(${(currentTime.getMinutes() * 6 + currentTime.getSeconds() * 0.1)}deg)`}}></div>
-                          </div>
-                          <div style={{fontSize:"10px", opacity: 0.8}}>Mumbai</div>
-                          <div style={{fontSize:"11px", fontWeight:"bold"}}>{new Date(currentTime.getTime()).toLocaleTimeString('en-US', {timeZone: 'Asia/Kolkata', hour: '2-digit', minute:'2-digit', hour12: false})}</div>
-                        </div>
-                        {/* London (UK) */}
-                        <div style={{textAlign:"center"}}>
-                          <div style={{width:"36px", height:"36px", borderRadius:"50%", border:"2px solid rgba(255,255,255,0.5)", margin:"0 auto 5px", position:"relative", background:"rgba(255,255,255,0.1)"}}>
-                            <div style={{position:"absolute", top:"50%", left:"50%", width:"2px", height:"12px", background:"white", transformOrigin:"bottom center", transform:`translate(-50%, -100%) rotate(${((currentTime.getUTCHours() + 0) % 24 * 30 + currentTime.getUTCMinutes() * 0.5)}deg)`}}></div>
-                            <div style={{position:"absolute", top:"50%", left:"50%", width:"1px", height:"14px", background:"#fbbf24", transformOrigin:"bottom center", transform:`translate(-50%, -100%) rotate(${(currentTime.getUTCMinutes() * 6 + currentTime.getUTCSeconds() * 0.1)}deg)`}}></div>
-                          </div>
-                          <div style={{fontSize:"10px", opacity: 0.8}}>London</div>
-                          <div style={{fontSize:"11px", fontWeight:"bold"}}>{new Date(currentTime.getTime()).toLocaleTimeString('en-US', {timeZone: 'Europe/London', hour: '2-digit', minute:'2-digit', hour12: false})}</div>
-                        </div>
-                        {/* New York (USA) */}
-                        <div style={{textAlign:"center"}}>
-                          <div style={{width:"36px", height:"36px", borderRadius:"50%", border:"2px solid rgba(255,255,255,0.5)", margin:"0 auto 5px", position:"relative", background:"rgba(255,255,255,0.1)"}}>
-                            <div style={{position:"absolute", top:"50%", left:"50%", width:"2px", height:"12px", background:"white", transformOrigin:"bottom center", transform:`translate(-50%, -100%) rotate(${((currentTime.getUTCHours() - 5 + 24) % 24 * 30 + currentTime.getUTCMinutes() * 0.5)}deg)`}}></div>
-                            <div style={{position:"absolute", top:"50%", left:"50%", width:"1px", height:"14px", background:"#fbbf24", transformOrigin:"bottom center", transform:`translate(-50%, -100%) rotate(${(currentTime.getUTCMinutes() * 6 + currentTime.getUTCSeconds() * 0.1)}deg)`}}></div>
-                          </div>
-                          <div style={{fontSize:"10px", opacity: 0.8}}>New York</div>
-                          <div style={{fontSize:"11px", fontWeight:"bold"}}>{new Date(currentTime.getTime()).toLocaleTimeString('en-US', {timeZone: 'America/New_York', hour: '2-digit', minute:'2-digit', hour12: false})}</div>
-                        </div>
-                        {/* Tokyo */}
-                        <div style={{textAlign:"center"}}>
-                          <div style={{width:"36px", height:"36px", borderRadius:"50%", border:"2px solid rgba(255,255,255,0.5)", margin:"0 auto 5px", position:"relative", background:"rgba(255,255,255,0.1)"}}>
-                            <div style={{position:"absolute", top:"50%", left:"50%", width:"2px", height:"12px", background:"white", transformOrigin:"bottom center", transform:`translate(-50%, -100%) rotate(${((currentTime.getUTCHours() + 9) % 24 * 30 + currentTime.getUTCMinutes() * 0.5)}deg)`}}></div>
-                            <div style={{position:"absolute", top:"50%", left:"50%", width:"1px", height:"14px", background:"#fbbf24", transformOrigin:"bottom center", transform:`translate(-50%, -100%) rotate(${(currentTime.getUTCMinutes() * 6 + currentTime.getUTCSeconds() * 0.1)}deg)`}}></div>
-                          </div>
-                          <div style={{fontSize:"10px", opacity: 0.8}}>Tokyo</div>
-                          <div style={{fontSize:"11px", fontWeight:"bold"}}>{new Date(currentTime.getTime()).toLocaleTimeString('en-US', {timeZone: 'Asia/Tokyo', hour: '2-digit', minute:'2-digit', hour12: false})}</div>
-                        </div>
-                      </div>
+                       <div style={{display:"grid", gridTemplateColumns:"1fr 1fr 1fr 1fr 1fr", gap:"8px"}}>
+                         {/* Mumbai */}
+                         <div style={{textAlign:"center"}}>
+                           <div style={{width:"36px", height:"36px", borderRadius:"50%", border:"2px solid rgba(255,255,255,0.5)", margin:"0 auto 5px", position:"relative", background:"rgba(255,255,255,0.1)"}}>
+                             <div style={{position:"absolute", top:"50%", left:"50%", width:"2px", height:"12px", background:"white", transformOrigin:"bottom center", transform:`translate(-50%, -100%) rotate(${((currentTime.getHours() + 5.5) % 24 * 30 + currentTime.getMinutes() * 0.5)}deg)`}}></div>
+                             <div style={{position:"absolute", top:"50%", left:"50%", width:"1px", height:"14px", background:"#fbbf24", transformOrigin:"bottom center", transform:`translate(-50%, -100%) rotate(${(currentTime.getMinutes() * 6 + currentTime.getSeconds() * 0.1)}deg)`}}></div>
+                           </div>
+                           <div style={{fontSize:"10px", opacity: 0.8}}>Mumbai</div>
+                           <div style={{fontSize:"11px", fontWeight:"bold"}}>{new Date(currentTime.getTime()).toLocaleTimeString('en-US', {timeZone: 'Asia/Kolkata', hour: '2-digit', minute:'2-digit', hour12: false})}</div>
+                         </div>
+                         {/* London (UK) */}
+                         <div style={{textAlign:"center"}}>
+                           <div style={{width:"36px", height:"36px", borderRadius:"50%", border:"2px solid rgba(255,255,255,0.5)", margin:"0 auto 5px", position:"relative", background:"rgba(255,255,255,0.1)"}}>
+                             <div style={{position:"absolute", top:"50%", left:"50%", width:"2px", height:"12px", background:"white", transformOrigin:"bottom center", transform:`translate(-50%, -100%) rotate(${((currentTime.getUTCHours() + 0) % 24 * 30 + currentTime.getUTCMinutes() * 0.5)}deg)`}}></div>
+                             <div style={{position:"absolute", top:"50%", left:"50%", width:"1px", height:"14px", background:"#fbbf24", transformOrigin:"bottom center", transform:`translate(-50%, -100%) rotate(${(currentTime.getUTCMinutes() * 6 + currentTime.getUTCSeconds() * 0.1)}deg)`}}></div>
+                           </div>
+                           <div style={{fontSize:"10px", opacity: 0.8}}>London</div>
+                           <div style={{fontSize:"11px", fontWeight:"bold"}}>{new Date(currentTime.getTime()).toLocaleTimeString('en-US', {timeZone: 'Europe/London', hour: '2-digit', minute:'2-digit', hour12: false})}</div>
+                         </div>
+                         {/* New York (USA) */}
+                         <div style={{textAlign:"center"}}>
+                           <div style={{width:"36px", height:"36px", borderRadius:"50%", border:"2px solid rgba(255,255,255,0.5)", margin:"0 auto 5px", position:"relative", background:"rgba(255,255,255,0.1)"}}>
+                             <div style={{position:"absolute", top:"50%", left:"50%", width:"2px", height:"12px", background:"white", transformOrigin:"bottom center", transform:`translate(-50%, -100%) rotate(${((currentTime.getUTCHours() - 5 + 24) % 24 * 30 + currentTime.getUTCMinutes() * 0.5)}deg)`}}></div>
+                             <div style={{position:"absolute", top:"50%", left:"50%", width:"1px", height:"14px", background:"#fbbf24", transformOrigin:"bottom center", transform:`translate(-50%, -100%) rotate(${(currentTime.getUTCMinutes() * 6 + currentTime.getUTCSeconds() * 0.1)}deg)`}}></div>
+                           </div>
+                           <div style={{fontSize:"10px", opacity: 0.8}}>New York</div>
+                           <div style={{fontSize:"11px", fontWeight:"bold"}}>{new Date(currentTime.getTime()).toLocaleTimeString('en-US', {timeZone: 'America/New_York', hour: '2-digit', minute:'2-digit', hour12: false})}</div>
+                         </div>
+                         {/* Tokyo */}
+                         <div style={{textAlign:"center"}}>
+                           <div style={{width:"36px", height:"36px", borderRadius:"50%", border:"2px solid rgba(255,255,255,0.5)", margin:"0 auto 5px", position:"relative", background:"rgba(255,255,255,0.1)"}}>
+                             <div style={{position:"absolute", top:"50%", left:"50%", width:"2px", height:"12px", background:"white", transformOrigin:"bottom center", transform:`translate(-50%, -100%) rotate(${((currentTime.getUTCHours() + 9) % 24 * 30 + currentTime.getUTCMinutes() * 0.5)}deg)`}}></div>
+                             <div style={{position:"absolute", top:"50%", left:"50%", width:"1px", height:"14px", background:"#fbbf24", transformOrigin:"bottom center", transform:`translate(-50%, -100%) rotate(${(currentTime.getUTCMinutes() * 6 + currentTime.getUTCSeconds() * 0.1)}deg)`}}></div>
+                           </div>
+                           <div style={{fontSize:"10px", opacity: 0.8}}>Tokyo</div>
+                           <div style={{fontSize:"11px", fontWeight:"bold"}}>{new Date(currentTime.getTime()).toLocaleTimeString('en-US', {timeZone: 'Asia/Tokyo', hour: '2-digit', minute:'2-digit', hour12: false})}</div>
+                         </div>
+                         {/* Singapore */}
+                         <div style={{textAlign:"center"}}>
+                           <div style={{width:"36px", height:"36px", borderRadius:"50%", border:"2px solid rgba(255,255,255,0.5)", margin:"0 auto 5px", position:"relative", background:"rgba(255,255,255,0.1)"}}>
+                             <div style={{position:"absolute", top:"50%", left:"50%", width:"2px", height:"12px", background:"white", transformOrigin:"bottom center", transform:`translate(-50%, -100%) rotate(${((currentTime.getUTCHours() + 8) % 24 * 30 + currentTime.getUTCMinutes() * 0.5)}deg)`}}></div>
+                             <div style={{position:"absolute", top:"50%", left:"50%", width:"1px", height:"14px", background:"#fbbf24", transformOrigin:"bottom center", transform:`translate(-50%, -100%) rotate(${(currentTime.getUTCMinutes() * 6 + currentTime.getUTCSeconds() * 0.1)}deg)`}}></div>
+                           </div>
+                           <div style={{fontSize:"10px", opacity: 0.8}}>Singapore</div>
+                           <div style={{fontSize:"11px", fontWeight:"bold"}}>{new Date(currentTime.getTime()).toLocaleTimeString('en-US', {timeZone: 'Asia/Singapore', hour: '2-digit', minute:'2-digit', hour12: false})}</div>
+                         </div>
+                       </div>
                     </div>
                   </div>
                 )}
