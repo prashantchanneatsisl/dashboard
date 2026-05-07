@@ -185,7 +185,7 @@ useEffect(() => {
   useEffect(() => {
     const fetchVessels = async () => {
       try {
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/vessels/marquee`);
+        const response = await fetch(`/api/vessels/marquee`);
         const data = await response.json();
         setApiVessels(data);
       } catch (error) {
@@ -761,118 +761,281 @@ useEffect(() => {
             </div>
           </div>
 
-{/* Slide 2: Silver Jubilee Countdown */}
-           <div style={{
-             width:"100%",
-             height:"100%",
-             overflow:"auto",
-             background:"linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)",
-             padding:"20px",
-             position: "absolute", top: 0, left: 0, opacity: currentSlide === 2 ? 1 : 0, transition: "opacity 0.8s ease-in-out", pointerEvents: currentSlide === 2 ? "auto" : "none", zIndex: currentSlide === 2 ? 1 : 0
-           }}>
-             <h2 style={{color:"white", marginBottom:"30px", borderBottom:"2px solid rgba(59,130,246,0.5)", paddingBottom:"10px", display:"flex", alignItems:"center", gap:"10px"}}>
-               🎉 Silver Jubilee Countdown
-             </h2>
-             
-             <div style={{
-               display: "flex",
-               flexDirection: "column",
-               alignItems: "center",
-               justifyContent: "center",
-               height: "calc(100% - 80px)",
-               color: "white"
-             }}>
-               <div style={{
-                 textAlign: "center",
-                 marginBottom: "40px"
-               }}>
-                 <h1 style={{
-                   fontSize: "clamp(28px, 5vw, 48px)",
-                   fontWeight: "bold",
-                   background: "linear-gradient(45deg, #fbbf24, #f59e0b, #d97706)",
-                   WebkitBackgroundClip: "text",
-                   WebkitTextFillColor: "transparent",
-                   marginBottom: "10px"
-                 }}>
-                   Seven Islands Shipping Limited
-                 </h1>
-                 <p style={{fontSize: "clamp(18px, 3vw, 24px)", color: "rgba(255,255,255,0.8)", margin: 0}}>
-                   Celebrating 25 Years of Excellence
-                 </p>
-                 <p style={{fontSize: "clamp(16px, 2.5vw, 20px)", color: "rgba(255,255,255,0.6)", marginTop: "10px"}}>
-                   May 2nd, 2027
-                 </p>
-               </div>
-               
-               <div style={{
-                 display: "grid",
-                 gridTemplateColumns: "repeat(4, 1fr)",
-                 gap: "20px",
-                 width: "100%",
-                 maxWidth: "800px",
-                 marginBottom: "40px"
-               }}>
-                 {[
-                   { label: "Days", value: jubileeTimeLeft.days },
-                   { label: "Hours", value: jubileeTimeLeft.hours },
-                   { label: "Minutes", value: jubileeTimeLeft.minutes },
-                   { label: "Seconds", value: jubileeTimeLeft.seconds }
-                 ].map((item, index) => (
-                   <div key={index} style={{
-                     background: "rgba(255,255,255,0.1)",
-                     borderRadius: "15px",
-                     padding: "20px",
-                     textAlign: "center",
-                     border: "2px solid rgba(251,191,36,0.3)",
-                     backdropFilter: "blur(10px)"
-                   }}>
-                     <div style={{
-                       fontSize: "clamp(32px, 6vw, 48px)",
-                       fontWeight: "bold",
-                       color: "#fbbf24",
-                       marginBottom: "5px"
-                     }}>
-                       {String(item.value || 0).padStart(2, '0')}
-                     </div>
-                     <div style={{
-                       fontSize: "clamp(12px, 2vw, 16px)",
-                       color: "rgba(255,255,255,0.7)",
-                       textTransform: "uppercase",
-                       letterSpacing: "1px"
-                     }}>
-                       {item.label}
-                     </div>
-                   </div>
-                 ))}
-               </div>
-               
-               <div style={{
-                 display: "flex",
-                 gap: "20px",
-                 flexWrap: "wrap",
-                 justifyContent: "center"
-               }}>
-                 <div style={{
-                   background: "rgba(251,191,36,0.2)",
-                   borderRadius: "10px",
-                   padding: "15px 30px",
-                   border: "1px solid rgba(251,191,36,0.4)"
-                 }}>
-                   <span style={{fontSize: "24px", marginRight: "10px"}}>🚢</span>
-                   <span style={{fontSize: "18px", fontWeight: "600"}}>25 Years of Maritime Excellence</span>
-                 </div>
-                 <div style={{
-                   background: "rgba(59,130,246,0.2)",
-                   borderRadius: "10px",
-                   padding: "15px 30px",
-                   border: "1px solid rgba(59,130,246,0.4)"
-                 }}>
-                   <span style={{fontSize: "24px", marginRight: "10px"}}>⭐</span>
-                   <span style={{fontSize: "18px", fontWeight: "600"}}>Silver Jubilee Celebrations</span>
-                 </div>
-               </div>
-             </div>
-           </div>
+{/* Slide 3: Silver Jubilee Countdown */}
+            <div style={{
+              width:"100%",
+              height:"100%",
+              overflow:"auto",
+              background:"linear-gradient(135deg, #0f172a 0%, #1e1b4b 25%, #312e81 50%, #1e1b4b 75%, #0f172a 100%)",
+              padding:"20px",
+              position: "absolute", top: 0, left: 0, opacity: currentSlide === 2 ? 1 : 0, transition: "opacity 0.8s ease-in-out", pointerEvents: currentSlide === 2 ? "auto" : "none", zIndex: currentSlide === 2 ? 1 : 0
+            }}>
+              {/* Confetti Animation Container */}
+              <div style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+                pointerEvents: "none",
+                overflow: "hidden",
+                zIndex: 1
+              }}>
+                {[...Array(50)].map((_, i) => (
+                  <div key={i} style={{
+                    position: "absolute",
+                    top: "-10px",
+                    left: `${Math.random() * 100}%`,
+                    width: "10px",
+                    height: "10px",
+                    background: ["#fbbf24", "#f97316", "#ef4444", "#22c55e", "#3b82f6", "#8b5cf6"][Math.floor(Math.random() * 6)],
+                    borderRadius: Math.random() > 0.5 ? "50%" : "0",
+                    animation: `confettiFall ${3 + Math.random() * 4}s linear infinite`,
+                    animationDelay: `${Math.random() * 2}s`,
+                    opacity: 0.8
+                  }} />
+                ))}
+              </div>
+
+              <style>{`
+                @keyframes confettiFall {
+                  0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+                  100% { transform: translateY(100vh) rotate(720deg); opacity: 0.3; }
+                }
+                @keyframes pulseGlow {
+                  0%, 100% { box-shadow: 0 0 20px rgba(251, 191, 36, 0.6), 0 0 40px rgba(251, 191, 36, 0.3); }
+                  50% { box-shadow: 0 0 30px rgba(251, 191, 36, 0.8), 0 0 60px rgba(251, 191, 36, 0.5); }
+                }
+                @keyframes floatUpDown {
+                  0%, 100% { transform: translateY(0); }
+                  50% { transform: translateY(-10px); }
+                }
+              `}</style>
+
+              <h2 style={{
+                color: "white",
+                marginBottom: "30px",
+                borderBottom: "3px solid #fbbf24",
+                paddingBottom: "15px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "15px",
+                fontSize: "clamp(24px, 4vw, 36px)",
+                fontWeight: "bold",
+                textShadow: "0 2px 10px rgba(251,191,36,0.5)",
+                animation: "floatUpDown 3s ease-in-out infinite"
+              }}>
+                🎉 Silver Jubilee Countdown 🎊
+              </h2>
+              
+              <div style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                height: "calc(100% - 100px)",
+                color: "white"
+              }}>
+                {/* Company Name with Enhanced Styling */}
+                <div style={{
+                  textAlign: "center",
+                  marginBottom: "40px",
+                  animation: "floatUpDown 3s ease-in-out infinite",
+                  position: "relative"
+                }}>
+                  {/* Decorative stars */}
+                  <div style={{
+                    position: "absolute",
+                    top: "-20px",
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    fontSize: "30px",
+                    animation: "pulseGlow 2s ease-in-out infinite"
+                  }}>⭐</div>
+                  <div style={{
+                    position: "absolute",
+                    top: "-15px",
+                    left: "10%",
+                    fontSize: "20px",
+                    animation: "floatUpDown 2s ease-in-out infinite"
+                  }}>✨</div>
+                  <div style={{
+                    position: "absolute",
+                    top: "-15px",
+                    right: "10%",
+                    fontSize: "20px",
+                    animation: "floatUpDown 2.5s ease-in-out infinite"
+                  }}>✨</div>
+                  
+                  <h1 style={{
+                    fontSize: "clamp(28px, 6vw, 56px)",
+                    fontWeight: "bold",
+                    background: "linear-gradient(45deg, #fbbf24, #f59e0b, #d97706, #fbbf24)",
+                    backgroundSize: "200% 200%",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    marginBottom: "15px",
+                    animation: "shimmer 3s ease-in-out infinite",
+                    textShadow: "0 3px 10px rgba(251,191,36,0.4)"
+                  }}>
+                    Seven Islands Shipping Limited
+                  </h1>
+                  <p style={{
+                    fontSize: "clamp(18px, 3.5vw, 28px)",
+                    color: "rgba(255,255,255,0.9)",
+                    margin: 0,
+                    fontWeight: "600",
+                    letterSpacing: "2px"
+                  }}>
+                    🏆 Celebrating 25 Years of Maritime Excellence 🏆
+                  </p>
+                  <p style={{
+                    fontSize: "clamp(20px, 4vw, 32px)",
+                    color: "#fbbf24",
+                    marginTop: "15px",
+                    fontWeight: "bold",
+                    textShadow: "0 0 20px rgba(251,191,36,0.8)",
+                    animation: "pulseGlow 2s ease-in-out infinite"
+                  }}>
+                    May 2nd, 2027
+                  </p>
+                </div>
+                
+                {/* Countdown Timer with Enhanced Visuals */}
+                <div style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(4, 1fr)",
+                  gap: "25px",
+                  width: "100%",
+                  maxWidth: "900px",
+                  marginBottom: "40px"
+                }}>
+                  {[
+                    { label: "Days", value: jubileeTimeLeft.days, emoji: "📅", color: "#3b82f6" },
+                    { label: "Hours", value: jubileeTimeLeft.hours, emoji: "⏰", color: "#8b5cf6" },
+                    { label: "Minutes", value: jubileeTimeLeft.minutes, emoji: "⏱️", color: "#f59e0b" },
+                    { label: "Seconds", value: jubileeTimeLeft.seconds, emoji: "🔔", color: "#ef4444" }
+                  ].map((item, index) => (
+                    <div key={index} style={{
+                      background: "linear-gradient(145deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%)",
+                      borderRadius: "20px",
+                      padding: "25px",
+                      textAlign: "center",
+                      border: `3px solid ${item.color}`,
+                      backdropFilter: "blur(10px)",
+                      boxShadow: `0 10px 30px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2)`,
+                      transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                      position: "relative",
+                      overflow: "hidden",
+                      animation: "pulseGlow 2s ease-in-out infinite",
+                      animationDelay: `${index * 0.2}s`
+                    }}>
+                      {/* Shine effect */}
+                      <div style={{
+                        position: "absolute",
+                        top: 0,
+                        left: "-100%",
+                        width: "100%",
+                        height: "100%",
+                        background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)",
+                        animation: "shine 3s infinite"
+                      }} />
+                      
+                      <div style={{
+                        fontSize: "clamp(28px, 6vw, 48px)",
+                        fontWeight: "bold",
+                        color: "#fbbf24",
+                        marginBottom: "8px",
+                        textShadow: "0 2px 10px rgba(0,0,0,0.5)",
+                        fontFamily: "monospace",
+                        letterSpacing: "2px"
+                      }}>
+                        {String(item.value || 0).padStart(2, '0')}
+                      </div>
+                      <div style={{
+                        fontSize: "clamp(10px, 2vw, 16px)",
+                        color: "white",
+                        textTransform: "uppercase",
+                        letterSpacing: "2px",
+                        fontWeight: "600"
+                      }}>
+                        <span style={{marginRight: "5px"}}>{item.emoji}</span>
+                        {item.label}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                
+                {/* Celebration Messages with Enhanced Styling */}
+                <div style={{
+                  display: "flex",
+                  gap: "20px",
+                  flexWrap: "wrap",
+                  justifyContent: "center",
+                  gap: "20px"
+                }}>
+                  <div style={{
+                    background: "linear-gradient(135deg, rgba(251,191,36,0.3) 0%, rgba(245,158,11,0.2) 100%)",
+                    borderRadius: "15px",
+                    padding: "20px 35px",
+                    border: "2px solid #fbbf24",
+                    boxShadow: "0 8px 25px rgba(251,191,36,0.4)",
+                    animation: "floatUpDown 3s ease-in-out infinite",
+                    position: "relative",
+                    overflow: "hidden"
+                  }}>
+                    <span style={{
+                      position: "relative",
+                      zIndex: 2,
+                      fontSize: "clamp(18px, 3vw, 24px)",
+                      fontWeight: "bold",
+                      color: "#fbbf24",
+                      textShadow: "0 2px 5px rgba(0,0,0,0.3)"
+                    }}>
+                      🚢 25 Years of Maritime Excellence 🚢
+                    </span>
+                  </div>
+                  <div style={{
+                    background: "linear-gradient(135deg, rgba(59,130,246,0.3) 0%, rgba(96,165,250,0.2) 100%)",
+                    borderRadius: "15px",
+                    padding: "20px 35px",
+                    border: "2px solid #3b82f6",
+                    boxShadow: "0 8px 25px rgba(59,130,246,0.4)",
+                    animation: "floatUpDown 3s ease-in-out infinite",
+                    animationDelay: "0.5s",
+                    position: "relative",
+                    overflow: "hidden"
+                  }}>
+                    <span style={{
+                      position: "relative",
+                      zIndex: 2,
+                      fontSize: "clamp(18px, 3vw, 24px)",
+                      fontWeight: "bold",
+                      color: "#60a5fa",
+                      textShadow: "0 2px 5px rgba(0,0,0,0.3)"
+                    }}>
+                      ⭐ Silver Jubilee Celebrations ⭐
+                    </span>
+                  </div>
+                </div>
+
+                {/* Additional Celebration Elements */}
+                <div style={{
+                  marginTop: "30px",
+                  display: "flex",
+                  gap: "15px",
+                  flexWrap: "wrap",
+                  justifyContent: "center"
+                }}>
+                  <span style={{fontSize: "40px", animation: "pulseGlow 1.5s ease-in-out infinite"}}>🎊</span>
+                  <span style={{fontSize: "40px", animation: "pulseGlow 1.5s ease-in-out infinite", animationDelay: "0.3s"}}>🎈</span>
+                  <span style={{fontSize: "40px", animation: "pulseGlow 1.5s ease-in-out infinite", animationDelay: "0.6s"}}>🎉</span>
+                  <span style={{fontSize: "40px", animation: "pulseGlow 1.5s ease-in-out infinite", animationDelay: "0.9s"}}>🌟</span>
+                  <span style={{fontSize: "40px", animation: "pulseGlow 1.5s ease-in-out infinite", animationDelay: "1.2s"}}>🏆</span>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Slide 3: Vessel Photos */}
