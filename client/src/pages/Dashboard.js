@@ -6,6 +6,8 @@ import VesselSidebar from "../components/VesselSidebar";
 import GridOverlay from "../components/GridOverlay";
 import { vesselImages } from "../config/vesselImages";
 
+
+
 // Configuration - can be overridden via environment variables
 const CONFIG = {
   // Default location: Marol, Andheri, Mumbai
@@ -99,10 +101,40 @@ export default function Dashboard(){
   const [newsLoading, setNewsLoading] = useState(true);
   const [apiVessels, setApiVessels] = useState([]);
   const [currentTime, setCurrentTime] = useState(new Date());
+
   const [selectedVessel, setSelectedVessel] = useState(null);
-  const [showSidebar, setShowSidebar] = useState(false);
-  const [mapReady, setMapReady] = useState(null);
-  const newsScrollRef = useRef(null);
+const [showSidebar, setShowSidebar] = useState(false);
+const [mapReady, setMapReady] = useState(null);
+// NEW
+const iframeRef = useRef(null);
+const [iframeLoaded, setIframeLoaded] = useState(false);
+
+const newsScrollRef = useRef(null);
+
+  const silverJubileeDate = new Date('2027-05-02T00:00:00');
+  const [jubileeTimeLeft, setJubileeTimeLeft] = useState({});
+
+  useEffect(() => {
+    const calculateTimeLeft = () => {
+      const now = new Date();
+      const difference = silverJubileeDate - now;
+      
+      if (difference > 0) {
+        const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((difference / (1000 * 60 * 60)) % 24);
+        const minutes = Math.floor((difference / (1000 * 60)) % 60);
+        const seconds = Math.floor((difference / 1000) % 60);
+        
+        setJubileeTimeLeft({ days, hours, minutes, seconds });
+      } else {
+        setJubileeTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0, completed: true });
+      }
+    };
+    
+    calculateTimeLeft();
+    const interval = setInterval(calculateTimeLeft, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleMapReady = (map) => {
     setMapReady(map);
@@ -111,6 +143,14 @@ export default function Dashboard(){
   useEffect(()=>{
     listenAIS(updateVessel);
   },[]);
+
+  // Preload iframe immediately
+useEffect(() => {
+  if (iframeRef.current) {
+    iframeRef.current.src =
+      "https://otis.stratumfive.com/viewer/viewer2.aspx?token=6125bd67b79f4597972e07d2f703d77e&set=0&refresh=true";
+  }
+}, []);
 
   const fetchAISData = async () => {
     return [];
@@ -258,13 +298,13 @@ export default function Dashboard(){
     fetchShippingNews();
   }, []);
 
-  // Auto-advance carousel every configurable interval
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentSlide(prev => (prev === 2 ? 0 : prev + 1));
-    }, CONFIG.carouselSlideInterval);
-    return () => clearInterval(interval);
-  }, []);
+   // Auto-advance carousel every configurable interval
+   useEffect(() => {
+     const interval = setInterval(() => {
+       setCurrentSlide(prev => (prev === 3 ? 0 : prev + 1));
+     }, CONFIG.carouselSlideInterval);
+     return () => clearInterval(interval);
+   }, []);
 
   // Load vessel photos from images folder and set up random slideshow
   useEffect(() => {
@@ -291,11 +331,11 @@ export default function Dashboard(){
   }, []);
 
   const nextSlide = () => {
-    setCurrentSlide(prev => (prev === 2 ? 0 : prev + 1));
+    setCurrentSlide(prev => (prev === 3 ? 0 : prev + 1));
   };
 
   const prevSlide = () => {
-    setCurrentSlide(prev => (prev === 0 ? 2 : prev - 1));
+    setCurrentSlide(prev => (prev === 0 ? 3 : prev - 1));
   };
 
   const nextPhotoSlide = () => {
@@ -311,6 +351,8 @@ export default function Dashboard(){
       return prev === 0 ? totalPhotos - 1 : prev - 1;
     });
   };
+
+  
 
   return(
     <div style={{display:"flex", flexDirection:"column", height:"100vh", overflow:"hidden"}}>
@@ -375,44 +417,106 @@ export default function Dashboard(){
           overflow:"hidden",
           position:"relative"
         }}>
-          
-          {/* Slide 1: Map Section */}
-          <div style={{
-            position: "absolute", top: 0, left: 0, width: "100%", height: "100%", opacity: currentSlide === 0 ? 1 : 0, transition: "opacity 0.8s ease-in-out", pointerEvents: currentSlide === 0 ? "auto" : "none", zIndex: currentSlide === 0 ? 1 : 0
-          }}>
-            <div style={{width:"100%", height:"100%", display:"flex", position:"relative"}}>
-              <div style={{flex: 1}}>
-                <VesselMap vessels={vesselArray} center={[CONFIG.latitude, CONFIG.longitude]} zoom={CONFIG.zoom} onVesselSelect={handleVesselSelect} onMapReady={handleMapReady}/>
-                <GridOverlay map={mapReady} vessels={vesselArray} />
-              </div>
-              {showSidebar && <VesselSidebar selectedVessel={selectedVessel} onClose={handleCloseSidebar} />}
-              <button
-                onClick={() => setShowSidebar(!showSidebar)}
-                style={{
-                  position: "absolute",
-                  right: showSidebar ? "360px" : "10px",
-                  top: "20px",
-                  background: showSidebar ? "#1a365d" : "#1a365d",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "8px",
-                  padding: "10px 15px",
-                  cursor: "pointer",
-                  fontSize: "16px",
-                  fontWeight: "bold",
-                  boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
-                  transition: "right 0.3s ease, background 0.3s",
-                  zIndex: 1000,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "8px"
-                }}
-                title={showSidebar ? "Hide vessel details" : "Show vessel details"}
-              >
-                {showSidebar ? "◀" : "▶"} Vessel Details
-              </button>
-            </div>
-          </div>
+
+{/* Slide 1: Map Section */}
+<div
+  style={{
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+
+    visibility: currentSlide === 0 ? "visible" : "hidden",
+
+    pointerEvents: currentSlide === 0 ? "auto" : "none",
+
+    zIndex: currentSlide === 0 ? 5 : 1,
+
+    willChange: "transform",
+    backfaceVisibility: "hidden",
+    transform: "translateZ(0)",
+
+    background: "#0b1220"
+  }}
+>
+  {/* Loading Overlay */}
+  {!iframeLoaded && (
+    <div
+      style={{
+        position: "absolute",
+        inset: 0,
+        background: "#0b1220",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        color: "white",
+        zIndex: 10
+      }}
+    >
+      <div
+        style={{
+          width: "60px",
+          height: "60px",
+          border: "5px solid rgba(255,255,255,0.2)",
+          borderTop: "5px solid #38bdf8",
+          borderRadius: "50%",
+          animation: "spinLoader 1s linear infinite",
+          marginBottom: "20px"
+        }}
+      />
+
+      <div
+        style={{
+          fontSize: "20px",
+          fontWeight: "600",
+          letterSpacing: "1px"
+        }}
+      >
+        Loading Vessel Map...
+      </div>
+
+      <div
+        style={{
+          marginTop: "10px",
+          opacity: 0.7,
+          fontSize: "14px"
+        }}
+      >
+        Initializing AIS layers and vessel markers
+      </div>
+    </div>
+  )}
+
+  {/* Map Iframe */}
+  <iframe
+    ref={iframeRef}
+    onLoad={() => setIframeLoaded(true)}
+    src="https://otis.stratumfive.com/viewer/viewer2.aspx?token=6125bd67b79f4597972e07d2f703d77e&set=0&refresh=true"
+    style={{
+      width: "100%",
+      height: "100%",
+      border: "none",
+      background: "#0b1220"
+    }}
+    loading="eager"
+    allowFullScreen
+    title="Vessel Map Viewer"
+  />
+
+  {/* Loader Animation */}
+  <style>{`
+    @keyframes spinLoader {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+  `}</style>
+</div>
 
           {/* Slide 2: News Section */}
           <div style={{
@@ -654,17 +758,131 @@ export default function Dashboard(){
                   </div>
                 )}
               </div>
-              </div>
             </div>
+          </div>
 
-            {/* Slide 3: Vessel Photos */}
+{/* Slide 2: Silver Jubilee Countdown */}
+           <div style={{
+             width:"100%",
+             height:"100%",
+             overflow:"auto",
+             background:"linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)",
+             padding:"20px",
+             position: "absolute", top: 0, left: 0, opacity: currentSlide === 2 ? 1 : 0, transition: "opacity 0.8s ease-in-out", pointerEvents: currentSlide === 2 ? "auto" : "none", zIndex: currentSlide === 2 ? 1 : 0
+           }}>
+             <h2 style={{color:"white", marginBottom:"30px", borderBottom:"2px solid rgba(59,130,246,0.5)", paddingBottom:"10px", display:"flex", alignItems:"center", gap:"10px"}}>
+               🎉 Silver Jubilee Countdown
+             </h2>
+             
+             <div style={{
+               display: "flex",
+               flexDirection: "column",
+               alignItems: "center",
+               justifyContent: "center",
+               height: "calc(100% - 80px)",
+               color: "white"
+             }}>
+               <div style={{
+                 textAlign: "center",
+                 marginBottom: "40px"
+               }}>
+                 <h1 style={{
+                   fontSize: "clamp(28px, 5vw, 48px)",
+                   fontWeight: "bold",
+                   background: "linear-gradient(45deg, #fbbf24, #f59e0b, #d97706)",
+                   WebkitBackgroundClip: "text",
+                   WebkitTextFillColor: "transparent",
+                   marginBottom: "10px"
+                 }}>
+                   Seven Islands Shipping Limited
+                 </h1>
+                 <p style={{fontSize: "clamp(18px, 3vw, 24px)", color: "rgba(255,255,255,0.8)", margin: 0}}>
+                   Celebrating 25 Years of Excellence
+                 </p>
+                 <p style={{fontSize: "clamp(16px, 2.5vw, 20px)", color: "rgba(255,255,255,0.6)", marginTop: "10px"}}>
+                   May 2nd, 2027
+                 </p>
+               </div>
+               
+               <div style={{
+                 display: "grid",
+                 gridTemplateColumns: "repeat(4, 1fr)",
+                 gap: "20px",
+                 width: "100%",
+                 maxWidth: "800px",
+                 marginBottom: "40px"
+               }}>
+                 {[
+                   { label: "Days", value: jubileeTimeLeft.days },
+                   { label: "Hours", value: jubileeTimeLeft.hours },
+                   { label: "Minutes", value: jubileeTimeLeft.minutes },
+                   { label: "Seconds", value: jubileeTimeLeft.seconds }
+                 ].map((item, index) => (
+                   <div key={index} style={{
+                     background: "rgba(255,255,255,0.1)",
+                     borderRadius: "15px",
+                     padding: "20px",
+                     textAlign: "center",
+                     border: "2px solid rgba(251,191,36,0.3)",
+                     backdropFilter: "blur(10px)"
+                   }}>
+                     <div style={{
+                       fontSize: "clamp(32px, 6vw, 48px)",
+                       fontWeight: "bold",
+                       color: "#fbbf24",
+                       marginBottom: "5px"
+                     }}>
+                       {String(item.value || 0).padStart(2, '0')}
+                     </div>
+                     <div style={{
+                       fontSize: "clamp(12px, 2vw, 16px)",
+                       color: "rgba(255,255,255,0.7)",
+                       textTransform: "uppercase",
+                       letterSpacing: "1px"
+                     }}>
+                       {item.label}
+                     </div>
+                   </div>
+                 ))}
+               </div>
+               
+               <div style={{
+                 display: "flex",
+                 gap: "20px",
+                 flexWrap: "wrap",
+                 justifyContent: "center"
+               }}>
+                 <div style={{
+                   background: "rgba(251,191,36,0.2)",
+                   borderRadius: "10px",
+                   padding: "15px 30px",
+                   border: "1px solid rgba(251,191,36,0.4)"
+                 }}>
+                   <span style={{fontSize: "24px", marginRight: "10px"}}>🚢</span>
+                   <span style={{fontSize: "18px", fontWeight: "600"}}>25 Years of Maritime Excellence</span>
+                 </div>
+                 <div style={{
+                   background: "rgba(59,130,246,0.2)",
+                   borderRadius: "10px",
+                   padding: "15px 30px",
+                   border: "1px solid rgba(59,130,246,0.4)"
+                 }}>
+                   <span style={{fontSize: "24px", marginRight: "10px"}}>⭐</span>
+                   <span style={{fontSize: "18px", fontWeight: "600"}}>Silver Jubilee Celebrations</span>
+                 </div>
+               </div>
+             </div>
+           </div>
+          </div>
+
+          {/* Slide 3: Vessel Photos */}
           <div style={{
             width:"100%",
             height:"100%",
             overflow:"auto",
             background:"linear-gradient(135deg, #1a365d 0%, #2c5282 50%, #1a365d 100%)",
             padding:"20px",
-            position: "absolute", top: 0, left: 0, opacity: currentSlide === 2 ? 1 : 0, transition: "opacity 0.8s ease-in-out", pointerEvents: currentSlide === 2 ? "auto" : "none", zIndex: currentSlide === 2 ? 1 : 0
+            position: "absolute", top: 0, left: 0, opacity: currentSlide === 3 ? 1 : 0, transition: "opacity 0.8s ease-in-out", pointerEvents: currentSlide === 3 ? "auto" : "none", zIndex: currentSlide === 3 ? 1 : 0
           }}>
             <h2 style={{color:"white", marginBottom:"20px", borderBottom:"2px solid rgba(255,255,255,0.3)", paddingBottom:"10px", display:"flex", alignItems:"center", gap:"10px"}}>
               🚢 Vessel Photos
@@ -852,7 +1070,7 @@ export default function Dashboard(){
           padding:"10px",
           background:"#f0f4f8"
         }}>
-          <button 
+           <button 
             onClick={() => setCurrentSlide(0)}
             style={{
               width:"12px",
@@ -889,6 +1107,19 @@ export default function Dashboard(){
               background: currentSlide === 2 ? "#1a365d" : "#cbd5e0",
               transition: "background 0.3s"
             }}
+            aria-label="Show Analytics"
+          />
+          <button 
+            onClick={() => setCurrentSlide(3)}
+            style={{
+              width:"12px",
+              height:"12px",
+              borderRadius:"50%",
+              border:"none",
+              cursor:"pointer",
+              background: currentSlide === 3 ? "#1a365d" : "#cbd5e0",
+              transition: "background 0.3s"
+            }}
             aria-label="Show Vessel Photos"
           />
         </div>
@@ -922,6 +1153,5 @@ export default function Dashboard(){
         </div>
 
       </div>
-    </div>
   )
 }
